@@ -11,9 +11,129 @@ datasource db {
 }
 
 model User {
-  id       Int    @id @default(autoincrement())
-  username String @unique
-  password String
+  id          Int       @id @default(autoincrement())
+  username    String    @unique
+  password    String
+  userLevelId Int       @map("user_level_id")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime? @updatedAt @map("updated_at")
+
+  UserLevel UserLevel  @relation(fields: [userLevelId], references: [id])
+  Employee  Employee[]
 
   @@map("user")
+}
+
+model UserLevel {
+  id    Int    @id @default(autoincrement())
+  level String
+
+  User User[]
+
+  @@map("user_level")
+}
+
+model Employee {
+  id         Int       @id @default(autoincrement())
+  name       String
+  nip        String
+  userId     Int       @map("user_id")
+  sectionId  Int       @map("section_id")
+  positionId Int       @map("position_id")
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt  DateTime? @updatedAt @map("updated_at")
+
+  User User @relation(fields: [userId], references: [id])
+
+  @@map("employee")
+}
+
+model Section {
+  id        Int       @id @default(autoincrement())
+  name      String
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime? @updatedAt @map("updated_at")
+
+  @@map("section")
+}
+
+model Position {
+  id        Int       @id @default(autoincrement())
+  name      String
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime? @updatedAt @map("updated_at")
+
+  @@map("position")
+}
+
+model IncomingLetter {
+  id        Int       @id @default(autoincrement())
+  refNo     String    @map("ref_no")
+  sender    String
+  about     String
+  statusId  Int       @map("status_id")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime? @updatedAt @map("updated_at")
+
+  DispositionForm DispositionForm[]
+  Status          Status            @relation(fields: [statusId], references: [id])
+
+  @@map("incoming_letter")
+}
+
+model DispositionForm {
+  id               Int       @id @default(autoincrement())
+  from             Int
+  to               Int
+  instructions     String
+  notes            String?
+  incomingLetterId Int       @map("incoming_letter_id")
+  priorityId       Int       @map("priority_id")
+  createdAt        DateTime  @default(now()) @map("created_at")
+  updatedAt        DateTime? @updatedAt @map("updated_at")
+
+  IncomingLetter IncomingLetter @relation(fields: [incomingLetterId], references: [id])
+  Priority       Priority       @relation(fields: [priorityId], references: [id])
+
+  @@map("disposition_form")
+}
+
+model OutgoingLetter {
+  id       Int    @id @default(autoincrement())
+  refNo    String @map("ref_no")
+  to       String
+  about    String
+  statusId Int    @map("status_id")
+
+  Status Status @relation(fields: [statusId], references: [id])
+
+  @@map("surat_keluar")
+}
+
+model Status {
+  id   Int    @id @default(autoincrement())
+  name String
+
+  IncomingLetter IncomingLetter[]
+  OutgoingLetter OutgoingLetter[]
+
+  @@map("status")
+}
+
+model Priority {
+  id      Int    @id @default(autoincrement())
+  urgency String
+
+  DispositionForm DispositionForm[]
+
+  @@map("priority")
+}
+
+model ApiKey {
+  id        Int      @id @default(autoincrement())
+  key       String
+  name      String   @unique
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("api_key")
 }

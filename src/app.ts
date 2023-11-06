@@ -2,8 +2,10 @@ import express, { Express, Request, Response } from 'express';
 import dotenv from 'dotenv';
 import Route from './routes/Route';
 import cors from 'cors';
-import { RequestError } from './types/RequestError';
+import { ErrorResponse } from './types/responses';
 import errorHandler from './middlewares/errorHandler';
+import { randomBytes } from 'crypto';
+import { generateApiKey } from './services/api.service';
 
 dotenv.config();
 
@@ -15,10 +17,12 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
+console.log(generateApiKey());
+
 app.use('/example', Route);
 
 app.get('*', (req, res, next) => {
-  const err: RequestError = {
+  const err: ErrorResponse = {
     status: 404,
     message: '404 NOT FOUND',
   };
