@@ -6,39 +6,37 @@ const model = UserModel;
 
 const UserController = {
   get: async (req: Request, res: Response, next: NextFunction) => {
-    const users = await model.findMany({
-      select: {
-        id: true,
-        username: true,
+    const getUsers = await model.findMany({
+      include: {
         UserLevel: {
           select: {
             level: true,
           },
         },
-        createdAt: true,
-        updatedAt: true,
       },
     });
 
-    let customUsers: any = [];
-    users.map((user) => {
+    let users: any = [];
+    getUsers.map((user) => {
       const obj = {
         id: user.id,
         username: user.username,
         userLevel: user.UserLevel.level,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt,
       };
-      customUsers.push(obj);
+      users.push(obj);
     });
 
     const response: SuccessResponse = {
       success: true,
-      status: 200,
       message: 'users data fetched successfully',
-      data: customUsers,
+      data: users,
     };
 
     res.json(response);
   },
+
   getById: async (req: Request, res: Response, next: NextFunction) => {
     const id = Number.parseInt(req.params.id);
 
@@ -51,12 +49,43 @@ const UserController = {
       return next(err);
     }
 
-    const user = await model.findFirst({
+    const getUser = await model.findFirst({
       where: { id },
+      include: {
+        UserLevel: {
+          select: {
+            level: true,
+          },
+        },
+      },
     });
 
-    res.json({ data: 'data' });
+    if (!getUser) {
+      const err: ErrorResponse = {
+        status: 401,
+        message: 'user is not found',
+      };
+
+      return next(err);
+    }
+
+    const user = {
+      id: getUser.id,
+      username: getUser.username,
+      userLevel: getUser.UserLevel.level,
+      createdAt: getUser.createdAt,
+      updatedAt: getUser.updatedAt,
+    };
+
+    const response: SuccessResponse = {
+      success: true,
+      message: 'user data fetched successfully',
+      data: user,
+    };
+
+    res.json(response);
   },
+
   post: (req: Request, res: Response, next: NextFunction) => {
     res.json({ data: 'data created' });
   },
