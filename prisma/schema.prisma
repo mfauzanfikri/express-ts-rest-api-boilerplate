@@ -28,7 +28,7 @@ model UserLevel {
   id    Int    @id @default(autoincrement())
   level String
 
-  User User[]
+  user User[]
 
   @@map("user_level")
 }
@@ -43,7 +43,7 @@ model Employee {
   createdAt  DateTime  @default(now()) @map("created_at")
   updatedAt  DateTime? @updatedAt @map("updated_at")
 
-  User User @relation(fields: [userId], references: [id])
+  user User @relation(fields: [userId], references: [id])
 
   @@map("employee")
 }
@@ -75,8 +75,8 @@ model IncomingLetter {
   createdAt DateTime  @default(now()) @map("created_at")
   updatedAt DateTime? @updatedAt @map("updated_at")
 
-  DispositionForm DispositionForm[]
-  Status          Status            @relation(fields: [statusId], references: [id])
+  dispositionForm DispositionForm[]
+  status          Status            @relation(fields: [statusId], references: [id])
 
   @@map("incoming_letter")
 }
@@ -92,8 +92,8 @@ model DispositionForm {
   createdAt        DateTime  @default(now()) @map("created_at")
   updatedAt        DateTime? @updatedAt @map("updated_at")
 
-  IncomingLetter IncomingLetter @relation(fields: [incomingLetterId], references: [id])
-  Priority       Priority       @relation(fields: [priorityId], references: [id])
+  incomingLetter IncomingLetter @relation(fields: [incomingLetterId], references: [id])
+  priority       Priority       @relation(fields: [priorityId], references: [id])
 
   @@map("disposition_form")
 }
@@ -105,17 +105,17 @@ model OutgoingLetter {
   about    String
   statusId Int    @map("status_id")
 
-  Status Status @relation(fields: [statusId], references: [id])
+  status Status @relation(fields: [statusId], references: [id])
 
-  @@map("surat_keluar")
+  @@map("outgoing_letter")
 }
 
 model Status {
   id   Int    @id @default(autoincrement())
   name String
 
-  IncomingLetter IncomingLetter[]
-  OutgoingLetter OutgoingLetter[]
+  incomingLetter IncomingLetter[]
+  outgoingLetter OutgoingLetter[]
 
   @@map("status")
 }
@@ -124,7 +124,7 @@ model Priority {
   id      Int    @id @default(autoincrement())
   urgency String
 
-  DispositionForm DispositionForm[]
+  dispositionForm DispositionForm[]
 
   @@map("priority")
 }

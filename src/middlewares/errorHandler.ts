@@ -9,6 +9,7 @@ const errorHandler = (
 ) => {
   if (!err) {
     res.status(404).json({
+      success: false,
       status: 404,
       message: '404 NOT FOUND',
     });

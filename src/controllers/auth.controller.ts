@@ -1,8 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
-import UserModel, {
-  UserResult,
-  findUserByUsername,
-} from '../models/user.model';
+import { findUserByUsername } from '../models/user.model';
 import { ErrorResponse } from '../types/responses';
 import validateUser from '../utils/validateUser';
 import generateAccessToken from '../utils/generateAccessToken';

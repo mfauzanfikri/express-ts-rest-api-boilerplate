@@ -1,16 +1,16 @@
-import { Request, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
 
 const Controller = {
-  get: (req: Request, res: Response) => {
+  get: (req: Request, res: Response, next: NextFunction) => {
     res.json({ data: 'data' });
   },
-  post: (req: Request, res: Response) => {
+  post: (req: Request, res: Response, next: NextFunction) => {
     res.json({ data: 'data created' });
   },
-  put: (req: Request, res: Response) => {
+  put: (req: Request, res: Response, next: NextFunction) => {
     res.json({ data: 'data edited' });
   },
-  delete: (req: Request, res: Response) => {
+  delete: (req: Request, res: Response, next: NextFunction) => {
     res.json({ data: 'data delete' });
   },
 };

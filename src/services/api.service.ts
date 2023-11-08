@@ -57,3 +57,7 @@ export const decryptKey = (hash: string) => {
 
   return decrypted.toString();
 };
+
+const apiService = { generateApiKey, authKey, encryptKey, decryptKey };
+
+export default apiService;

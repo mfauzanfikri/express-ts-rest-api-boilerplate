@@ -1,10 +1,9 @@
-import express, { Express, Request, Response } from 'express';
+import express, { Express } from 'express';
 import dotenv from 'dotenv';
 import Route from './routes/Route';
 import cors from 'cors';
 import { ErrorResponse } from './types/responses';
 import errorHandler from './middlewares/errorHandler';
-import { randomBytes } from 'crypto';
 import { generateApiKey } from './services/api.service';
 
 dotenv.config();
