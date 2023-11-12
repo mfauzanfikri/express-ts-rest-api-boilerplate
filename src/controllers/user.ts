@@ -196,7 +196,85 @@ const UserController = {
       Object.assign(updateData, { [key]: data[key] });
     }
 
-    console.log(updateData);
+    let isExist: UserResult | null = null;
+    try {
+      isExist = await model.findFirst({
+        where: {
+          username: data.username,
+        },
+      });
+    } catch (error) {
+      const errRes: ErrorResponse = {
+        status: 500,
+        message: 'there is something wrong, try again later',
+      };
+
+      return next(errRes);
+    }
+
+    if (!isExist) {
+      const err: ErrorResponse = {
+        status: 404,
+        message: 'user does not exist',
+      };
+
+      return next(err);
+    }
+
+    try {
+      const createdUser = await model.update({
+        where: { id: userId },
+        data: updateData,
+        include: {
+          UserLevel: {
+            select: {
+              level: true,
+            },
+          },
+        },
+      });
+
+      const resData = {
+        id: createdUser.id,
+        username: createdUser.username,
+        userLevel: createdUser.UserLevel.level,
+        createdAt: createdUser.createdAt,
+        updatedAt: createdUser.updatedAt,
+      };
+
+      const response: SuccessResponse = {
+        success: true,
+        status: 200,
+        message: 'user updated',
+        data: resData,
+      };
+
+      res.json(response);
+    } catch (error) {
+      const errRes: ErrorResponse = {
+        status: 500,
+        message: 'there is something wrong, try again later',
+      };
+
+      return next(errRes);
+    }
+  },
+
+  delete: async (req: Request, res: Response, next: NextFunction) => {
+    const userId: number =
+      typeof req.body.userId === 'number'
+        ? req.body.id
+        : Number.parseInt(req.body.userId);
+    const data: UserData = JSON.parse(req.body.data);
+
+    if (!userId) {
+      const err: ErrorResponse = {
+        status: 422,
+        message: 'userId required',
+      };
+
+      return next(err);
+    }
 
     let isExist: UserResult | null = null;
     try {
@@ -223,43 +301,17 @@ const UserController = {
       return next(err);
     }
 
-    // let updateData = {};
-    // // Object.assign(updateData);
-
-    // for (const key in data) {
-    //   console.log({ key });
-    // }
-
     try {
-      const createdUser = await model.update({
-        where: { id: userId },
-        data: {
-          username: data.username,
-          password: data.password,
-          userLevelId: data.userLevelId,
-        },
-        include: {
-          UserLevel: {
-            select: {
-              level: true,
-            },
-          },
+      await model.delete({
+        where: {
+          id: userId,
         },
       });
 
-      const resData = {
-        id: createdUser.id,
-        username: createdUser.username,
-        userLevel: createdUser.UserLevel.level,
-        createdAt: createdUser.createdAt,
-        updatedAt: createdUser.updatedAt,
-      };
-
       const response: SuccessResponse = {
         success: true,
-        status: 201,
-        message: 'user created',
-        data: resData,
+        status: 204,
+        message: 'user deleted',
       };
 
       res.json(response);
@@ -271,10 +323,6 @@ const UserController = {
 
       return next(errRes);
     }
-  },
-
-  delete: (req: Request, res: Response, next: NextFunction) => {
-    res.json({ data: 'data delete' });
   },
 };
 
