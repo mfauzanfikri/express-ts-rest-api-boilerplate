@@ -3,7 +3,7 @@ import dotenv from 'dotenv';
 import cors from 'cors';
 import { ErrorResponse } from './types/responses';
 import errorHandler from './middlewares/errorHandler';
-import { generateApiKey } from './services/api';
+import { generateApiKey } from './services/apiService';
 import userRouter from './routes/user';
 
 dotenv.config();
