@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
-import { findUserByUsername } from '../models/user.model';
+import { findUserByUsername } from '../models/user';
 import { ErrorResponse } from '../types/responses';
 import validateUser from '../utils/validateUser';
 import generateAccessToken from '../utils/generateAccessToken';
@@ -14,7 +14,6 @@ const AuthController = {
 
     if (!user) {
       const err: ErrorResponse = {
-        success: false,
         status: 401,
         message: 'Email or password is wrong.',
       };
@@ -27,7 +26,6 @@ const AuthController = {
 
     if (!isValid) {
       const err: ErrorResponse = {
-        success: false,
         status: 401,
         message: 'Email or password is wrong.',
       };
@@ -54,7 +52,6 @@ const AuthController = {
 
     if (token == null) {
       const err: ErrorResponse = {
-        success: false,
         status: 401,
         message: 'Token required',
       };
@@ -68,7 +65,6 @@ const AuthController = {
       (err: any, user: any) => {
         if (err) {
           const errMsg: ErrorResponse = {
-            success: false,
             status: 403,
             message: 'Token is invalid or expired',
           };

@@ -1,10 +1,10 @@
 import express, { Express } from 'express';
 import dotenv from 'dotenv';
-import Route from './routes/Route';
 import cors from 'cors';
 import { ErrorResponse } from './types/responses';
 import errorHandler from './middlewares/errorHandler';
-import { generateApiKey } from './services/api.service';
+import { generateApiKey } from './services/api';
+import userRouter from './routes/user';
 
 dotenv.config();
 
@@ -16,9 +16,9 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
-console.log(generateApiKey());
+// console.log(generateApiKey());
 
-app.use('/example', Route);
+app.use('/user', userRouter);
 
 app.get('*', (req, res, next) => {
   const err: ErrorResponse = {

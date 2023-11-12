@@ -1,6 +1,6 @@
 import { generateApiKey as generator } from 'generate-api-key';
 import { createCipheriv, createDecipheriv } from 'crypto';
-import APIKeyModel, { APIKeyResult } from '../models/apiKey.model';
+import APIKeyModel, { APIKeyResult } from '../models/apiKey';
 
 const algorithm = process.env.API_KEY_ALGORITHM as string;
 const secretKey = process.env.API_KEY_SECRET as string;
