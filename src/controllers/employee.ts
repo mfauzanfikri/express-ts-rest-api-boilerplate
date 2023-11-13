@@ -1,54 +1,53 @@
 import { NextFunction, Request, Response } from 'express';
-import UserModel, { UserResult } from '../models/user';
+import EmployeeModel, { EmployeeResult } from '../models/employee';
 import { ErrorResponse, SuccessResponse } from '../types/responses';
 
-const model = UserModel;
+const model = EmployeeModel;
 
-type UserData = {
-  username: string;
-  password: string;
-  employeeId: number;
-  userLevelId: number;
+type EmployeeData = {
+  name: string;
+  nip: string;
+  sectionId: number;
+  positionId: number;
 };
 
-type UserResource = {
+type EmployeeResource = {
   id: number;
-  username: string;
-  userLevel: string;
-  employee: string;
+  name: string;
+  nip: string;
+  section: string;
+  position: string;
   createdAt: Date;
   updatedAt: Date | null;
 };
 
-const UserController = {
+const EmployeeController = {
   get: async (req: Request, res: Response, next: NextFunction) => {
-    const getUsers = await model.findMany({
+    const getEmployees = await model.findMany({
       include: {
-        userLevel: {
-          select: {
-            level: true,
-          },
-        },
+        position: true,
+        section: true,
       },
     });
 
-    let users: any = [];
-    getUsers.map((user) => {
-      const obj: UserResource = {
-        id: user.id,
-        username: user.username,
-        userLevel: user.userLevel.level,
-        employee: `${process.env.BASE_URL}/employee/${user.employeeId}`,
-        createdAt: user.createdAt,
-        updatedAt: user.updatedAt,
+    let employees: any = [];
+    getEmployees.map((employee) => {
+      const obj: EmployeeResource = {
+        id: employee.id,
+        name: employee.name,
+        nip: employee.nip,
+        section: employee.section.name,
+        position: employee.position.name,
+        createdAt: employee.createdAt,
+        updatedAt: employee.updatedAt,
       };
-      users.push(obj);
+      employees.push(obj);
     });
 
     const response: SuccessResponse = {
       success: true,
-      message: 'users data fetched successfully',
-      data: users,
+      message: 'employees data fetched successfully',
+      data: employees,
     };
 
     res.json(response);
@@ -66,52 +65,50 @@ const UserController = {
       return next(err);
     }
 
-    const getUser = await model.findFirst({
+    const getEmployee = await model.findFirst({
       where: { id },
       include: {
-        userLevel: {
-          select: {
-            level: true,
-          },
-        },
+        position: true,
+        section: true,
       },
     });
 
-    if (!getUser) {
+    if (!getEmployee) {
       const err: ErrorResponse = {
         status: 404,
-        message: 'user not found',
+        message: 'employee not found',
       };
 
       return next(err);
     }
 
-    const user: UserResource = {
-      id: getUser.id,
-      username: getUser.username,
-      userLevel: getUser.userLevel.level,
-      employee: `${process.env.BASE_URL}/employee/${getUser.employeeId}`,
-      createdAt: getUser.createdAt,
-      updatedAt: getUser.updatedAt,
+    const employee: EmployeeResource = {
+      id: getEmployee.id,
+      name: getEmployee.name,
+      nip: getEmployee.nip,
+      section: getEmployee.section.name,
+      position: getEmployee.position.name,
+      createdAt: getEmployee.createdAt,
+      updatedAt: getEmployee.updatedAt,
     };
 
     const response: SuccessResponse = {
       success: true,
-      message: 'user data fetched successfully',
-      data: user,
+      message: 'employee data fetched successfully',
+      data: employee,
     };
 
     res.json(response);
   },
 
   post: async (req: Request, res: Response, next: NextFunction) => {
-    const data: UserData = JSON.parse(req.body.data);
+    const data: EmployeeData = JSON.parse(req.body.data);
 
-    if (!data.username || !data.password || !data.userLevelId) {
+    if (!data.name || !data.nip || !data.sectionId || !data.positionId) {
       const err: ErrorResponse = {
         status: 422,
         message:
-          'username, password, employeeId, and userLevel parameters required',
+          'employeename, password, and employeeLevel parameters required',
       };
 
       return next(err);
@@ -119,49 +116,47 @@ const UserController = {
 
     const isExist = await model.findFirst({
       where: {
-        username: data.username,
+        nip: data.nip,
       },
     });
 
     if (isExist) {
       const err: ErrorResponse = {
         status: 409,
-        message: 'user already exists',
+        message: 'employee already exists',
       };
 
       return next(err);
     }
 
     try {
-      const createdUser = await model.create({
+      const createdEmployee = await model.create({
         data: {
-          username: data.username,
-          password: data.password,
-          userLevelId: data.userLevelId,
-          employeeId: data.employeeId,
+          name: data.name,
+          nip: data.nip,
+          sectionId: data.sectionId,
+          positionId: data.positionId,
         },
         include: {
-          userLevel: {
-            select: {
-              level: true,
-            },
-          },
+          position: true,
+          section: true,
         },
       });
 
-      const resData: UserResource = {
-        id: createdUser.id,
-        username: createdUser.username,
-        userLevel: createdUser.userLevel.level,
-        employee: `${process.env.BASE_URL}/employee/${createdUser.employeeId}`,
-        createdAt: createdUser.createdAt,
-        updatedAt: createdUser.updatedAt,
+      const resData: EmployeeResource = {
+        id: createdEmployee.id,
+        name: createdEmployee.name,
+        nip: createdEmployee.nip,
+        section: createdEmployee.section.name,
+        position: createdEmployee.position.name,
+        createdAt: createdEmployee.createdAt,
+        updatedAt: createdEmployee.updatedAt,
       };
 
       const response: SuccessResponse = {
         success: true,
         status: 201,
-        message: 'user created',
+        message: 'employee created',
         data: resData,
       };
 
@@ -177,26 +172,25 @@ const UserController = {
   },
 
   put: async (req: Request, res: Response, next: NextFunction) => {
-    const userId: number =
-      typeof req.body.userId === 'number'
+    const employeeId: number =
+      typeof req.body.employeeId === 'number'
         ? req.body.id
-        : Number.parseInt(req.body.userId);
-    const data: UserData = JSON.parse(req.body.data);
+        : Number.parseInt(req.body.employeeId);
+    const data: EmployeeData = JSON.parse(req.body.data);
 
-    if (!userId) {
+    if (!employeeId) {
       const err: ErrorResponse = {
         status: 422,
-        message: 'userId required',
+        message: 'employeeId required',
       };
 
       return next(err);
     }
 
-    if (!data.username || !data.password || !data.userLevelId) {
+    if (!data.name || !data.nip || !data.sectionId || !data.positionId) {
       const err: ErrorResponse = {
         status: 422,
-        message:
-          'username, password, employeeId, or userLevel parameters required',
+        message: 'name, nip, sectionId, or positionId parameters required',
       };
 
       return next(err);
@@ -206,10 +200,10 @@ const UserController = {
 
     for (const key in data) {
       if (
-        key !== 'username' &&
-        key !== 'password' &&
-        key !== 'employeeId' &&
-        key !== 'userLevelId'
+        key !== 'name' &&
+        key !== 'nip' &&
+        key !== 'sectionId' &&
+        key !== 'positionId'
       ) {
         continue;
       }
@@ -217,11 +211,11 @@ const UserController = {
       Object.assign(updateData, { [key]: data[key] });
     }
 
-    let isExist: UserResult | null = null;
+    let isExist: EmployeeResult | null = null;
     try {
       isExist = await model.findFirst({
         where: {
-          username: data.username,
+          nip: data.nip,
         },
       });
     } catch (error) {
@@ -236,7 +230,7 @@ const UserController = {
     if (!isExist) {
       const err: ErrorResponse = {
         status: 404,
-        message: 'user does not exist',
+        message: 'employee does not exist',
       };
 
       return next(err);
@@ -244,22 +238,20 @@ const UserController = {
 
     try {
       const updatedEmployee = await model.update({
-        where: { id: userId },
+        where: { id: employeeId },
         data: updateData,
         include: {
-          userLevel: {
-            select: {
-              level: true,
-            },
-          },
+          position: true,
+          section: true,
         },
       });
 
-      const resData: UserResource = {
+      const resData: EmployeeResource = {
         id: updatedEmployee.id,
-        username: updatedEmployee.username,
-        userLevel: updatedEmployee.userLevel.level,
-        employee: `${process.env.BASE_URL}/employee/${updatedEmployee.employeeId}`,
+        name: updatedEmployee.name,
+        nip: updatedEmployee.nip,
+        section: updatedEmployee.section.name,
+        position: updatedEmployee.position.name,
         createdAt: updatedEmployee.createdAt,
         updatedAt: updatedEmployee.updatedAt,
       };
@@ -267,7 +259,7 @@ const UserController = {
       const response: SuccessResponse = {
         success: true,
         status: 200,
-        message: 'user updated',
+        message: 'employee updated',
         data: resData,
       };
 
@@ -283,25 +275,25 @@ const UserController = {
   },
 
   delete: async (req: Request, res: Response, next: NextFunction) => {
-    const userId: number =
-      typeof req.body.userId === 'number'
+    const employeeId: number =
+      typeof req.body.employeeId === 'number'
         ? req.body.id
-        : Number.parseInt(req.body.userId);
+        : Number.parseInt(req.body.employeeId);
 
-    if (!userId) {
+    if (!employeeId) {
       const err: ErrorResponse = {
         status: 422,
-        message: 'userId required',
+        message: 'employeeId required',
       };
 
       return next(err);
     }
 
-    let isExist: UserResult | null = null;
+    let isExist: EmployeeResult | null = null;
     try {
       isExist = await model.findFirst({
         where: {
-          id: userId,
+          id: employeeId,
         },
       });
     } catch (error) {
@@ -316,7 +308,7 @@ const UserController = {
     if (!isExist) {
       const err: ErrorResponse = {
         status: 404,
-        message: 'user does not exist',
+        message: 'employee does not exist',
       };
 
       return next(err);
@@ -325,14 +317,14 @@ const UserController = {
     try {
       await model.delete({
         where: {
-          id: userId,
+          id: employeeId,
         },
       });
 
       const response: SuccessResponse = {
         success: true,
         status: 204,
-        message: 'user deleted',
+        message: 'employee deleted',
       };
 
       res.json(response);
@@ -347,4 +339,4 @@ const UserController = {
   },
 };
 
-export default UserController;
+export default EmployeeController;

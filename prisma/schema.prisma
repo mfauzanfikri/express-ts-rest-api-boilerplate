@@ -15,11 +15,12 @@ model User {
   username    String    @unique
   password    String
   userLevelId Int       @map("user_level_id")
+  employeeId  Int       @map("employee_id")
   createdAt   DateTime  @default(now()) @map("created_at")
   updatedAt   DateTime? @updatedAt @map("updated_at")
 
-  UserLevel UserLevel  @relation(fields: [userLevelId], references: [id])
-  Employee  Employee[]
+  userLevel UserLevel @relation(fields: [userLevelId], references: [id])
+  employee  Employee  @relation(fields: [employeeId], references: [id])
 
   @@map("user")
 }
@@ -36,32 +37,35 @@ model UserLevel {
 model Employee {
   id         Int       @id @default(autoincrement())
   name       String
-  nip        String
-  userId     Int       @map("user_id")
+  nip        String    @unique
   sectionId  Int       @map("section_id")
   positionId Int       @map("position_id")
   createdAt  DateTime  @default(now()) @map("created_at")
   updatedAt  DateTime? @updatedAt @map("updated_at")
+  eser       User[]
 
-  user User @relation(fields: [userId], references: [id])
+  position Position @relation(fields: [positionId], references: [id])
+  section  Section  @relation(fields: [sectionId], references: [id])
 
   @@map("employee")
 }
 
 model Section {
-  id        Int       @id @default(autoincrement())
+  id        Int        @id @default(autoincrement())
   name      String
-  createdAt DateTime  @default(now()) @map("created_at")
-  updatedAt DateTime? @updatedAt @map("updated_at")
+  createdAt DateTime   @default(now()) @map("created_at")
+  updatedAt DateTime?  @updatedAt @map("updated_at")
+  employee  Employee[]
 
   @@map("section")
 }
 
 model Position {
-  id        Int       @id @default(autoincrement())
+  id        Int        @id @default(autoincrement())
   name      String
-  createdAt DateTime  @default(now()) @map("created_at")
-  updatedAt DateTime? @updatedAt @map("updated_at")
+  createdAt DateTime   @default(now()) @map("created_at")
+  updatedAt DateTime?  @updatedAt @map("updated_at")
+  employee  Employee[]
 
   @@map("position")
 }
