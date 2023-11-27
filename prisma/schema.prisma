@@ -43,8 +43,8 @@ model Employee {
   positionId Int       @map("position_id")
   createdAt  DateTime  @default(now()) @map("created_at")
   updatedAt  DateTime? @updatedAt @map("updated_at")
-  user       User[]
 
+  user     User[]
   position Position @relation(fields: [positionId], references: [id])
   section  Section  @relation(fields: [sectionId], references: [id])
 
@@ -77,6 +77,7 @@ model IncomingLetter {
   sender    String
   about     String
   statusId  Int       @map("status_id")
+  path      String
   createdAt DateTime  @default(now()) @map("created_at")
   updatedAt DateTime? @updatedAt @map("updated_at")
 
@@ -103,11 +104,14 @@ model DispositionForm {
 }
 
 model OutgoingLetter {
-  id       Int    @id @default(autoincrement())
-  refNo    String @map("ref_no")
-  to       String
-  about    String
-  statusId Int    @map("status_id")
+  id        Int       @id @default(autoincrement())
+  refNo     String    @map("ref_no")
+  to        String
+  about     String
+  statusId  Int       @map("status_id")
+  path      String
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime? @updatedAt @map("updated_at")
 
   status Status @relation(fields: [statusId], references: [id])
 
