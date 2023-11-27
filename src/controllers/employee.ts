@@ -6,7 +6,8 @@ const model = EmployeeModel;
 
 type EmployeeData = {
   name: string;
-  nip: string;
+  nip?: string;
+  nik?: string;
   sectionId: number;
   positionId: number;
 };
@@ -14,7 +15,8 @@ type EmployeeData = {
 type EmployeeResource = {
   id: number;
   name: string;
-  nip: string;
+  nip: string | null;
+  nik: string | null;
   section: string;
   position: string;
   createdAt: Date;
@@ -31,11 +33,13 @@ const EmployeeController = {
     });
 
     let employees: any = [];
+
     getEmployees.map((employee) => {
       const obj: EmployeeResource = {
         id: employee.id,
         name: employee.name,
         nip: employee.nip,
+        nik: employee.nik,
         section: employee.section.name,
         position: employee.position.name,
         createdAt: employee.createdAt,
@@ -86,6 +90,7 @@ const EmployeeController = {
       id: getEmployee.id,
       name: getEmployee.name,
       nip: getEmployee.nip,
+      nik: getEmployee.nik,
       section: getEmployee.section.name,
       position: getEmployee.position.name,
       createdAt: getEmployee.createdAt,
@@ -104,21 +109,34 @@ const EmployeeController = {
   post: async (req: Request, res: Response, next: NextFunction) => {
     const data: EmployeeData = JSON.parse(req.body.data);
 
-    if (!data.name || !data.nip || !data.sectionId || !data.positionId) {
+    if (
+      !data.name ||
+      (!data.nip && !data.nik) ||
+      !data.sectionId ||
+      !data.positionId
+    ) {
       const err: ErrorResponse = {
         status: 422,
-        message:
-          'employeename, password, and employeeLevel parameters required',
+        message: 'name, nip/nik, sectionId, and positionId parameters required',
       };
 
       return next(err);
     }
 
-    const isExist = await model.findFirst({
-      where: {
-        nip: data.nip,
-      },
-    });
+    let isExist;
+    if (data.nip) {
+      isExist = await model.findFirst({
+        where: {
+          nip: data.nip,
+        },
+      });
+    } else {
+      isExist = await model.findFirst({
+        where: {
+          nik: data.nik,
+        },
+      });
+    }
 
     if (isExist) {
       const err: ErrorResponse = {
@@ -133,7 +151,8 @@ const EmployeeController = {
       const createdEmployee = await model.create({
         data: {
           name: data.name,
-          nip: data.nip,
+          nip: data.nip ? data.nip : null,
+          nik: data.nik ? data.nik : null,
           sectionId: data.sectionId,
           positionId: data.positionId,
         },
@@ -147,6 +166,7 @@ const EmployeeController = {
         id: createdEmployee.id,
         name: createdEmployee.name,
         nip: createdEmployee.nip,
+        nik: createdEmployee.nik,
         section: createdEmployee.section.name,
         position: createdEmployee.position.name,
         createdAt: createdEmployee.createdAt,
@@ -187,7 +207,12 @@ const EmployeeController = {
       return next(err);
     }
 
-    if (!data.name || !data.nip || !data.sectionId || !data.positionId) {
+    if (
+      !data.name ||
+      (!data.nip && !data.nik) ||
+      !data.sectionId ||
+      !data.positionId
+    ) {
       const err: ErrorResponse = {
         status: 422,
         message: 'name, nip, sectionId, or positionId parameters required',
@@ -202,6 +227,7 @@ const EmployeeController = {
       if (
         key !== 'name' &&
         key !== 'nip' &&
+        key !== 'nik' &&
         key !== 'sectionId' &&
         key !== 'positionId'
       ) {
@@ -250,6 +276,7 @@ const EmployeeController = {
         id: updatedEmployee.id,
         name: updatedEmployee.name,
         nip: updatedEmployee.nip,
+        nik: updatedEmployee.nik,
         section: updatedEmployee.section.name,
         position: updatedEmployee.position.name,
         createdAt: updatedEmployee.createdAt,

@@ -37,12 +37,13 @@ model UserLevel {
 model Employee {
   id         Int       @id @default(autoincrement())
   name       String
-  nip        String    @unique
+  nip        String?   @unique
+  nik        String?   @unique
   sectionId  Int       @map("section_id")
   positionId Int       @map("position_id")
   createdAt  DateTime  @default(now()) @map("created_at")
   updatedAt  DateTime? @updatedAt @map("updated_at")
-  eser       User[]
+  user       User[]
 
   position Position @relation(fields: [positionId], references: [id])
   section  Section  @relation(fields: [sectionId], references: [id])
@@ -89,15 +90,14 @@ model DispositionForm {
   id               Int       @id @default(autoincrement())
   from             Int
   to               Int
-  instructions     String
   notes            String?
+  instructionId    Int       @map("instruction_id")
   incomingLetterId Int       @map("incoming_letter_id")
-  priorityId       Int       @map("priority_id")
   createdAt        DateTime  @default(now()) @map("created_at")
   updatedAt        DateTime? @updatedAt @map("updated_at")
 
   incomingLetter IncomingLetter @relation(fields: [incomingLetterId], references: [id])
-  priority       Priority       @relation(fields: [priorityId], references: [id])
+  instruction    Insctruction   @relation(fields: [instructionId], references: [id])
 
   @@map("disposition_form")
 }
@@ -124,13 +124,13 @@ model Status {
   @@map("status")
 }
 
-model Priority {
-  id      Int    @id @default(autoincrement())
-  urgency String
+model Insctruction {
+  id           Int    @id @default(autoincrement())
+  insctruction String
 
   dispositionForm DispositionForm[]
 
-  @@map("priority")
+  @@map("instruction")
 }
 
 model ApiKey {
