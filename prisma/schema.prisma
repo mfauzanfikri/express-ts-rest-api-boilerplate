@@ -97,7 +97,7 @@ model DispositionForm {
   updatedAt        DateTime? @updatedAt @map("updated_at")
 
   incomingLetter IncomingLetter @relation(fields: [incomingLetterId], references: [id])
-  instruction    Insctruction   @relation(fields: [instructionId], references: [id])
+  instruction    Instruction    @relation(fields: [instructionId], references: [id])
 
   @@map("disposition_form")
 }
@@ -124,9 +124,9 @@ model Status {
   @@map("status")
 }
 
-model Insctruction {
-  id           Int    @id @default(autoincrement())
-  insctruction String
+model Instruction {
+  id          Int    @id @default(autoincrement())
+  instruction String
 
   dispositionForm DispositionForm[]
 
