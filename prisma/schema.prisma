@@ -35,38 +35,42 @@ model UserLevel {
 }
 
 model Employee {
-  id         Int       @id @default(autoincrement())
-  name       String
-  nip        String?   @unique
-  nik        String?   @unique
-  sectionId  Int       @map("section_id")
-  positionId Int       @map("position_id")
-  createdAt  DateTime  @default(now()) @map("created_at")
-  updatedAt  DateTime? @updatedAt @map("updated_at")
+  id        Int       @id @default(autoincrement())
+  name      String
+  nip       String?   @unique
+  nik       String?   @unique
+  // sectionId  Int       @map("section_id")
+  // positionId Int       @map("position_id")
+  section   String
+  position  String
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime? @updatedAt @map("updated_at")
 
-  user     User[]
-  position Position @relation(fields: [positionId], references: [id])
-  section  Section  @relation(fields: [sectionId], references: [id])
+  user User[]
+  // position Position @relation(fields: [positionId], references: [id])
+  // section  Section  @relation(fields: [sectionId], references: [id])
 
   @@map("employee")
 }
 
 model Section {
-  id        Int        @id @default(autoincrement())
+  id        Int       @id @default(autoincrement())
   name      String
-  createdAt DateTime   @default(now()) @map("created_at")
-  updatedAt DateTime?  @updatedAt @map("updated_at")
-  employee  Employee[]
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime? @updatedAt @map("updated_at")
+
+  // employee  Employee[]
 
   @@map("section")
 }
 
 model Position {
-  id        Int        @id @default(autoincrement())
+  id        Int       @id @default(autoincrement())
   name      String
-  createdAt DateTime   @default(now()) @map("created_at")
-  updatedAt DateTime?  @updatedAt @map("updated_at")
-  employee  Employee[]
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime? @updatedAt @map("updated_at")
+
+  // employee  Employee[]
 
   @@map("position")
 }

@@ -4,6 +4,7 @@ import { hash } from 'bcryptjs';
 const prisma = new PrismaClient();
 
 async function main() {
+  // userLevel
   const userLevel1 = await prisma.userLevel.upsert({
     where: { id: 1 },
     update: {},

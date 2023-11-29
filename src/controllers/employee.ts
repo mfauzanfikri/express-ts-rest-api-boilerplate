@@ -8,8 +8,8 @@ type EmployeeData = {
   name: string;
   nip?: string;
   nik?: string;
-  sectionId: number;
-  positionId: number;
+  section: string;
+  position: string;
 };
 
 type EmployeeResource = {
@@ -25,12 +25,7 @@ type EmployeeResource = {
 
 const EmployeeController = {
   get: async (req: Request, res: Response, next: NextFunction) => {
-    const getEmployees = await model.findMany({
-      include: {
-        position: true,
-        section: true,
-      },
-    });
+    const getEmployees = await model.findMany();
 
     let employees: any = [];
 
@@ -40,8 +35,8 @@ const EmployeeController = {
         name: employee.name,
         nip: employee.nip,
         nik: employee.nik,
-        section: employee.section.name,
-        position: employee.position.name,
+        section: employee.section,
+        position: employee.position,
         createdAt: employee.createdAt,
         updatedAt: employee.updatedAt,
       };
@@ -71,10 +66,6 @@ const EmployeeController = {
 
     const getEmployee = await model.findFirst({
       where: { id },
-      include: {
-        position: true,
-        section: true,
-      },
     });
 
     if (!getEmployee) {
@@ -91,8 +82,8 @@ const EmployeeController = {
       name: getEmployee.name,
       nip: getEmployee.nip,
       nik: getEmployee.nik,
-      section: getEmployee.section.name,
-      position: getEmployee.position.name,
+      section: getEmployee.section,
+      position: getEmployee.position,
       createdAt: getEmployee.createdAt,
       updatedAt: getEmployee.updatedAt,
     };
@@ -113,12 +104,12 @@ const EmployeeController = {
     if (
       !data.name ||
       (!data.nip && !data.nik) ||
-      !data.sectionId ||
-      !data.positionId
+      !data.section ||
+      !data.position
     ) {
       const err: ErrorResponse = {
         status: 422,
-        message: 'name, nip/nik, sectionId, and positionId parameters required',
+        message: 'name, nip/nik, section, and position parameters required',
       };
 
       return next(err);
@@ -154,12 +145,8 @@ const EmployeeController = {
           name: data.name,
           nip: data.nip ? data.nip : null,
           nik: data.nik ? data.nik : null,
-          sectionId: data.sectionId,
-          positionId: data.positionId,
-        },
-        include: {
-          position: true,
-          section: true,
+          section: data.section,
+          position: data.position,
         },
       });
 
@@ -168,8 +155,8 @@ const EmployeeController = {
         name: createdEmployee.name,
         nip: createdEmployee.nip,
         nik: createdEmployee.nik,
-        section: createdEmployee.section.name,
-        position: createdEmployee.position.name,
+        section: createdEmployee.section,
+        position: createdEmployee.position,
         createdAt: createdEmployee.createdAt,
         updatedAt: createdEmployee.updatedAt,
       };
@@ -211,12 +198,12 @@ const EmployeeController = {
     if (
       !data.name ||
       (!data.nip && !data.nik) ||
-      !data.sectionId ||
-      !data.positionId
+      !data.section ||
+      !data.position
     ) {
       const err: ErrorResponse = {
         status: 422,
-        message: 'name, nip, sectionId, or positionId parameters required',
+        message: 'name, nip, section, or position parameters required',
       };
 
       return next(err);
@@ -229,8 +216,8 @@ const EmployeeController = {
         key !== 'name' &&
         key !== 'nip' &&
         key !== 'nik' &&
-        key !== 'sectionId' &&
-        key !== 'positionId'
+        key !== 'section' &&
+        key !== 'position'
       ) {
         continue;
       }
@@ -267,10 +254,6 @@ const EmployeeController = {
       const updatedEmployee = await model.update({
         where: { id: employeeId },
         data: updateData,
-        include: {
-          position: true,
-          section: true,
-        },
       });
 
       const resData: EmployeeResource = {
@@ -278,8 +261,8 @@ const EmployeeController = {
         name: updatedEmployee.name,
         nip: updatedEmployee.nip,
         nik: updatedEmployee.nik,
-        section: updatedEmployee.section.name,
-        position: updatedEmployee.position.name,
+        section: updatedEmployee.section,
+        position: updatedEmployee.position,
         createdAt: updatedEmployee.createdAt,
         updatedAt: updatedEmployee.updatedAt,
       };
