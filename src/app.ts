@@ -5,6 +5,7 @@ import { ErrorResponse } from './types/responses';
 import errorHandler from './middlewares/errorHandler';
 import { generateApiKey } from './services/apiService';
 import userRouter from './routes/user';
+import employeeRouter from './routes/employee';
 
 dotenv.config();
 
@@ -18,7 +19,8 @@ app.use(cors());
 
 // console.log(generateApiKey());
 
-app.use('/user', userRouter);
+app.use('/users', userRouter);
+app.use('/employees', employeeRouter);
 
 app.get('*', (req, res, next) => {
   const err: ErrorResponse = {

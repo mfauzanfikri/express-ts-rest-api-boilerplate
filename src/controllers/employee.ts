@@ -108,6 +108,7 @@ const EmployeeController = {
 
   post: async (req: Request, res: Response, next: NextFunction) => {
     const data: EmployeeData = JSON.parse(req.body.data);
+    console.log(data);
 
     if (
       !data.name ||
