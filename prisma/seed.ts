@@ -23,22 +23,34 @@ async function main() {
     create: { level: 'operator' },
   });
 
-  //   const password = await hash('pass123', 12);
-  //   const user = await prisma.user.upsert({
-  //     where: { username: 'admin' },
-  //     update: {},
-  //     create: {
-  //       username: 'Admin',
-  //       password,
-  //       userLevelId:1
-  //     },
-  //   });
+  const employee = await prisma.employee.upsert({
+    where: { id: 1 },
+    update: {},
+    create: {
+      name: 'Kasubag Umum dan Pegawai',
+      position: 'Kasubag',
+      section: 'Sub Bagian Umum dan Pegawai',
+    },
+  });
+
+  const password = await hash('pass123', 12);
+  const user = await prisma.user.upsert({
+    where: { username: 'admin' },
+    update: {},
+    create: {
+      username: 'Admin',
+      password,
+      userLevelId: 1,
+      employeeId: 1,
+    },
+  });
 
   console.log({
     userLevel1,
     userLevel2,
     userLevel3,
-    // user,
+    employee,
+    user,
   });
 }
 main()
