@@ -3,7 +3,6 @@ import dotenv from 'dotenv';
 import cors from 'cors';
 import { ErrorResponse } from './types/responses';
 import errorHandler from './middlewares/errorHandler';
-import { generateApiKey } from './services/apiService';
 import userRouter from './routes/user';
 import employeeRouter from './routes/employee';
 
@@ -16,9 +15,6 @@ app.use(express.static('public'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors());
-
-console.log(generateApiKey());
-console.log(generateApiKey());
 
 app.use('/users', userRouter);
 app.use('/employees', employeeRouter);
