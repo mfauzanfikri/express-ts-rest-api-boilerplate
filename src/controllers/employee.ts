@@ -1,31 +1,20 @@
 import { NextFunction, Request, Response } from 'express';
-import EmployeeModel, { EmployeeResult } from '../models/employee';
+import EmployeeModel, {
+  EmployeeResult,
+  EmployeeData,
+  EmployeeResource,
+} from '../models/employee';
 import { ErrorResponse, SuccessResponse } from '../types/responses';
 
 const model = EmployeeModel;
 
-type EmployeeData = {
-  name: string;
-  nip?: string;
-  nik?: string;
-  section: string;
-  position: string;
-};
-
-type EmployeeResource = {
-  id: number;
-  name: string;
-  nip: string | null;
-  nik: string | null;
-  section: string;
-  position: string;
-  createdAt: Date;
-  updatedAt: Date | null;
-};
-
 const EmployeeController = {
   get: async (req: Request, res: Response, next: NextFunction) => {
-    const getEmployees = await model.findMany();
+    const getEmployees = await model.findMany({
+      include: {
+        section: true,
+      },
+    });
 
     let employees: any = [];
 
@@ -35,7 +24,7 @@ const EmployeeController = {
         name: employee.name,
         nip: employee.nip,
         nik: employee.nik,
-        section: employee.section,
+        section: employee.section.name,
         position: employee.position,
         createdAt: employee.createdAt,
         updatedAt: employee.updatedAt,
@@ -66,6 +55,9 @@ const EmployeeController = {
 
     const getEmployee = await model.findFirst({
       where: { id },
+      include: {
+        section: true,
+      },
     });
 
     if (!getEmployee) {
@@ -82,7 +74,7 @@ const EmployeeController = {
       name: getEmployee.name,
       nip: getEmployee.nip,
       nik: getEmployee.nik,
-      section: getEmployee.section,
+      section: getEmployee.section.name,
       position: getEmployee.position,
       createdAt: getEmployee.createdAt,
       updatedAt: getEmployee.updatedAt,
@@ -104,7 +96,7 @@ const EmployeeController = {
     if (
       !data.name ||
       (!data.nip && !data.nik) ||
-      !data.section ||
+      !data.sectionId ||
       !data.position
     ) {
       const err: ErrorResponse = {
@@ -145,8 +137,11 @@ const EmployeeController = {
           name: data.name,
           nip: data.nip ? data.nip : null,
           nik: data.nik ? data.nik : null,
-          section: data.section,
+          sectionId: data.sectionId,
           position: data.position,
+        },
+        include: {
+          section: true,
         },
       });
 
@@ -155,7 +150,7 @@ const EmployeeController = {
         name: createdEmployee.name,
         nip: createdEmployee.nip,
         nik: createdEmployee.nik,
-        section: createdEmployee.section,
+        section: createdEmployee.section.name,
         position: createdEmployee.position,
         createdAt: createdEmployee.createdAt,
         updatedAt: createdEmployee.updatedAt,
@@ -198,7 +193,7 @@ const EmployeeController = {
     if (
       !data.name ||
       (!data.nip && !data.nik) ||
-      !data.section ||
+      !data.sectionId ||
       !data.position
     ) {
       const err: ErrorResponse = {
@@ -216,7 +211,7 @@ const EmployeeController = {
         key !== 'name' &&
         key !== 'nip' &&
         key !== 'nik' &&
-        key !== 'section' &&
+        key !== 'sectionId' &&
         key !== 'position'
       ) {
         continue;
@@ -254,6 +249,9 @@ const EmployeeController = {
       const updatedEmployee = await model.update({
         where: { id: employeeId },
         data: updateData,
+        include: {
+          section: true,
+        },
       });
 
       const resData: EmployeeResource = {
@@ -261,7 +259,7 @@ const EmployeeController = {
         name: updatedEmployee.name,
         nip: updatedEmployee.nip,
         nik: updatedEmployee.nik,
-        section: updatedEmployee.section,
+        section: updatedEmployee.section.name,
         position: updatedEmployee.position,
         createdAt: updatedEmployee.createdAt,
         updatedAt: updatedEmployee.updatedAt,

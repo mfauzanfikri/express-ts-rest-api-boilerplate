@@ -17,7 +17,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
-// console.log(generateApiKey());
+console.log(generateApiKey());
+console.log(generateApiKey());
 
 app.use('/users', userRouter);
 app.use('/employees', employeeRouter);

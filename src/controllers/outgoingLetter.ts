@@ -1,28 +1,12 @@
 import { NextFunction, Request, Response } from 'express';
 import OutgoingLetterModel, {
   OutgoingLetterResult,
+  OutgoingLetterData,
+  OutgoingLetterResource,
 } from '../models/outgoingLetter';
 import { ErrorResponse, SuccessResponse } from '../types/responses';
 
 const model = OutgoingLetterModel;
-
-type OutgoingLetterData = {
-  refNo: string;
-  to: string;
-  about: string;
-  statusId: number;
-};
-
-type OutgoingLetterResource = {
-  id: number;
-  refNo: string;
-  to: string;
-  about: string;
-  status: String;
-  path: string;
-  createdAt: Date;
-  updatedAt: Date | null;
-};
 
 const OutgoingLetterController = {
   get: async (req: Request, res: Response, next: NextFunction) => {

@@ -1,28 +1,12 @@
 import { NextFunction, Request, Response } from 'express';
 import IncomingLetterModel, {
   IncomingLetterResult,
+  IncomingLetterData,
+  IncomingLetterResource,
 } from '../models/incomingLetter';
 import { ErrorResponse, SuccessResponse } from '../types/responses';
 
 const model = IncomingLetterModel;
-
-type IncomingLetterData = {
-  refNo: string;
-  sender: string;
-  about: string;
-  statusId: number;
-};
-
-type IncomingLetterResource = {
-  id: number;
-  refNo: string;
-  sender: string;
-  about: string;
-  status: String;
-  path: string;
-  createdAt: Date;
-  updatedAt: Date | null;
-};
 
 const IncomingLetterController = {
   get: async (req: Request, res: Response, next: NextFunction) => {
@@ -103,6 +87,34 @@ const IncomingLetterController = {
     };
 
     res.json(response);
+  },
+
+  getFile: async (req: Request, res: Response, next: NextFunction) => {
+    const id = Number.parseInt(req.params.id);
+
+    if (!id) {
+      const err: ErrorResponse = {
+        status: 422,
+        message: 'id parameter required',
+      };
+
+      return next(err);
+    }
+    const incomingLetter = await model.findFirst({
+      where: { id },
+      select: { path: true },
+    });
+
+    if (!incomingLetter) {
+      const err: ErrorResponse = {
+        status: 404,
+        message: 'incomingLetter not found',
+      };
+
+      return next(err);
+    }
+
+    res.sendFile(incomingLetter.path);
   },
 
   post: async (req: Request, res: Response, next: NextFunction) => {

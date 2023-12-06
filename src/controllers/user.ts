@@ -1,24 +1,8 @@
 import { NextFunction, Request, Response } from 'express';
-import UserModel, { UserResult } from '../models/user';
+import UserModel, { UserResult, UserData, UserResource } from '../models/user';
 import { ErrorResponse, SuccessResponse } from '../types/responses';
 
 const model = UserModel;
-
-type UserData = {
-  username: string;
-  password: string;
-  employeeId: number;
-  userLevelId: number;
-};
-
-type UserResource = {
-  id: number;
-  username: string;
-  userLevel: string;
-  employee: string;
-  createdAt: Date;
-  updatedAt: Date | null;
-};
 
 const UserController = {
   get: async (req: Request, res: Response, next: NextFunction) => {

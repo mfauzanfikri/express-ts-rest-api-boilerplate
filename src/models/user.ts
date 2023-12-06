@@ -23,6 +23,22 @@ export const findUserByUsername = async (username: string) => {
   return user;
 };
 
+export type UserData = {
+  username: string;
+  password: string;
+  employeeId: number;
+  userLevelId: number;
+};
+
+export type UserResource = {
+  id: number;
+  username: string;
+  userLevel: string;
+  employee: string;
+  createdAt: Date;
+  updatedAt: Date | null;
+};
+
 export default UserModel;
 
 export type UserResult = User;
