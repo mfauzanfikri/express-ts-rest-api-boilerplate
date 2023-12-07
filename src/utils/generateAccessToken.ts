@@ -7,9 +7,23 @@ const generateAccessToken = ({
   id: number;
   username: string;
 }) => {
-  return jwt.sign({ id, username }, process.env.TOKEN_SECRET as jwt.Secret, {
-    expiresIn: '8h',
-  });
+  const token = jwt.sign(
+    { id, username },
+    process.env.TOKEN_SECRET as jwt.Secret,
+    {
+      expiresIn: '1h',
+    }
+  );
+
+  const refreshToken = jwt.sign(
+    { id, username },
+    process.env.REFRESH_TOKEN_SECRET as jwt.Secret,
+    {
+      expiresIn: '8h',
+    }
+  );
+
+  return { token, refreshToken };
 };
 
 export default generateAccessToken;
