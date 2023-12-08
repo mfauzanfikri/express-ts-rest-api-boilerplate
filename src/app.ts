@@ -25,7 +25,7 @@ app.use('/auth', authRouter);
 app.use('/users', userRouter);
 app.use('/employees', employeeRouter);
 
-// 404 handler
+// error handler
 app.get('*', (req, res, next) => {
   const err: ErrorResponse = {
     status: 404,
