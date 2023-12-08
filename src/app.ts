@@ -7,6 +7,14 @@ import userRouter from './routes/user';
 import employeeRouter from './routes/employee';
 import authRouter from './routes/auth';
 import cookieParser from 'cookie-parser';
+import incomingLetterRouter from './routes/incomingLetter';
+import outgoingLetterRouter from './routes/outgoingLetter';
+import dispositionRouter from './routes/disposisiton';
+import instructionRouter from './routes/instruction';
+import positionRouter from './routes/position';
+import sectionRouter from './routes/section';
+import statusRouter from './routes/status';
+import userLevelRouter from './routes/userLevel';
 
 dotenv.config();
 
@@ -24,6 +32,14 @@ app.use(cookieParser());
 app.use('/auth', authRouter);
 app.use('/users', userRouter);
 app.use('/employees', employeeRouter);
+app.use('/incoming_letters', incomingLetterRouter);
+app.use('/outgoing_letters', outgoingLetterRouter);
+app.use('/dispositions', dispositionRouter);
+app.use('/istructions', instructionRouter);
+app.use('/positions', positionRouter);
+app.use('/sections', sectionRouter);
+app.use('/status', statusRouter);
+app.use('/user_levels', userLevelRouter);
 
 // error handler
 app.get('*', (req, res, next) => {

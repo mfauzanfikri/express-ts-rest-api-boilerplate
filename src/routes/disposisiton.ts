@@ -1,5 +1,5 @@
 import express, { Router } from 'express';
-import Controller from '../controllers/employee';
+import Controller from '../controllers/disposition';
 import authAPIKey from '../middlewares/authAPIKey';
 import authToken from '../middlewares/authToken';
 
@@ -11,6 +11,6 @@ router.post('/', [authAPIKey, authToken], Controller.post);
 router.put('/', [authAPIKey, authToken], Controller.put);
 router.delete('/', [authAPIKey, authToken], Controller.delete);
 
-const employeeRouter = router;
+const dispositionRouter = router;
 
-export default employeeRouter;
+export default dispositionRouter;
