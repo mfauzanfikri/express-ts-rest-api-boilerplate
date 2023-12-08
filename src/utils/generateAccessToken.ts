@@ -7,7 +7,7 @@ const generateAccessToken = ({
   id: number;
   username: string;
 }) => {
-  const token = jwt.sign(
+  const accessToken = jwt.sign(
     { id, username },
     process.env.TOKEN_SECRET as jwt.Secret,
     {
@@ -23,7 +23,7 @@ const generateAccessToken = ({
     }
   );
 
-  return { token, refreshToken };
+  return { accessToken, refreshToken };
 };
 
 export default generateAccessToken;

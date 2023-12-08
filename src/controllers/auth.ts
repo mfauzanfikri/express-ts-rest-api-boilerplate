@@ -4,7 +4,12 @@ import { ErrorResponse } from '../types/responses';
 import validateUser from '../utils/validateUser';
 import generateAccessToken from '../utils/generateAccessToken';
 import jwt from 'jsonwebtoken';
-import cookie from 'cookie';
+import cookieParser from 'cookie';
+
+type Cookies = {
+  accessToken: string;
+  refreshToken: string;
+};
 
 const AuthController = {
   post: async (req: Request, res: Response, next: NextFunction) => {
@@ -45,18 +50,18 @@ const AuthController = {
       return false;
     }
 
-    const { token, refreshToken } = generateAccessToken({
+    const { accessToken, refreshToken } = generateAccessToken({
       id: user.id,
       username: user.username,
     });
 
     res
-      .cookie('access_token', token, {
+      .cookie('accessToken', accessToken, {
         maxAge: 60 * 60 * 1000,
         secure: false,
         httpOnly: true,
       })
-      .cookie('refresh_token', refreshToken, {
+      .cookie('refreshToken', refreshToken, {
         maxAge: 8 * 60 * 60 * 1000,
         secure: false,
         httpOnly: true,
@@ -68,43 +73,69 @@ const AuthController = {
       });
   },
   AuthToken: async (req: Request, res: Response, next: NextFunction) => {
-    // const authHeader = req.headers['authorization'];
-    // const token = authHeader && authHeader.split(' ')[1];
+    if (!req.headers.cookie) {
+      const errMsg: ErrorResponse = {
+        status: 403,
+        message: 'token required',
+      };
 
-    // if (token == null) {
-    //   const err: ErrorResponse = {
-    //     status: 401,
-    //     message: 'Token required',
-    //   };
-
-    //   return next(err);
-    // }
-
-    if (req.headers.cookie) {
-      console.log(cookie.parse(req.headers.cookie));
+      return next(errMsg);
     }
-    res.json({ ok: 'ok' });
 
-    // jwt.verify(
-    //   token,
-    //   process.env.TOKEN_SECRET as string,
-    //   (err: any, user: any) => {
-    //     if (err) {
-    //       const errMsg: ErrorResponse = {
-    //         status: 403,
-    //         message: 'Token is invalid or expired',
-    //       };
+    const cookies = cookieParser.parse(req.headers.cookie) as Cookies;
 
-    //       return next(errMsg);
-    //     }
+    if (!cookies.accessToken || !cookies.refreshToken) {
+      const errMsg: ErrorResponse = {
+        status: 403,
+        message: 'token required',
+      };
 
-    //     return res.json({
-    //       success: true,
-    //       status: 200,
-    //       message: 'Authorized',
-    //     });
-    //   }
-    // );
+      return next(errMsg);
+    }
+
+    const accessToken = cookies.accessToken;
+    const refreshToken = cookies.refreshToken;
+
+    try {
+      jwt.verify(accessToken as string, process.env.TOKEN_SECRET as string);
+    } catch (error) {
+      if (error) {
+        try {
+          const decoded: any = jwt.verify(
+            refreshToken as string,
+            process.env.TOKEN_SECRET as string
+          );
+          const id = decoded.id;
+          const username = decoded.username;
+          const generatedToken = generateAccessToken({ id, username });
+
+          return res
+            .cookie('accessToken', generatedToken.accessToken, {
+              maxAge: 60 * 60 * 1000,
+              secure: false,
+              httpOnly: true,
+            })
+            .json({
+              success: true,
+              status: 200,
+              message: 'authorized',
+            });
+        } catch (error) {
+          const errMsg: ErrorResponse = {
+            status: 403,
+            message: 'token is invalid or expired',
+          };
+
+          return next(errMsg);
+        }
+      }
+    }
+
+    return res.json({
+      success: true,
+      status: 200,
+      message: 'authorized',
+    });
   },
 };
 
