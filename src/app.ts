@@ -13,16 +13,19 @@ dotenv.config();
 const port = process.env.PORT;
 const app: Express = express();
 
+// middlewares
 app.use(express.static('public'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors({ origin: 'http://localhost:3000', credentials: true }));
 app.use(cookieParser());
 
+// routes
 app.use('/auth', authRouter);
 app.use('/users', userRouter);
 app.use('/employees', employeeRouter);
 
+// 404 handler
 app.get('*', (req, res, next) => {
   const err: ErrorResponse = {
     status: 404,
