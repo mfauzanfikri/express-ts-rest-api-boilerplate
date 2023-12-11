@@ -1,9 +1,9 @@
 import { NextFunction, Request, Response } from 'express';
-import { findUserByUsername } from '../models/user';
+import { UserResource, findUserByUsername } from '../models/user';
 import { ErrorResponse } from '../types/responses';
 import validateUser from '../utils/validateUser';
 import generateAccessToken from '../utils/generateAccessToken';
-import jwt from 'jsonwebtoken';
+import jwt, { JwtPayload } from 'jsonwebtoken';
 import cookieParser from 'cookie';
 
 type Cookies = {
@@ -38,6 +38,16 @@ const AuthController = {
       return false;
     }
 
+    const userResource: UserResource = {
+      id: user.id,
+      username: user.username,
+      userLevelId: user.userLevelId,
+      userLevel: user.userLevel.level,
+      employee: `${process.env.BASE_URL}/employee/${user.employeeId}`,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+    };
+
     const isValid = validateUser(password, user.password);
 
     if (!isValid) {
@@ -69,10 +79,10 @@ const AuthController = {
       .json({
         success: true,
         status: 200,
-        data: { id: user.id, username: user.username },
+        data: userResource,
       });
   },
-  AuthToken: async (req: Request, res: Response, next: NextFunction) => {
+  authToken: async (req: Request, res: Response, next: NextFunction) => {
     if (!req.headers.cookie) {
       const errMsg: ErrorResponse = {
         status: 403,
@@ -84,7 +94,7 @@ const AuthController = {
 
     const cookies = cookieParser.parse(req.headers.cookie) as Cookies;
 
-    if (!cookies.accessToken || !cookies.refreshToken) {
+    if (!cookies.refreshToken) {
       const errMsg: ErrorResponse = {
         status: 403,
         message: 'token required',
@@ -96,39 +106,47 @@ const AuthController = {
     const accessToken = cookies.accessToken;
     const refreshToken = cookies.refreshToken;
 
+    if (!accessToken) {
+      try {
+        const decoded: any = jwt.verify(
+          refreshToken,
+          process.env.REFRESH_TOKEN_SECRET as string
+        );
+
+        const id = decoded.id;
+        const username = decoded.username;
+        const generatedToken = generateAccessToken({ id, username });
+
+        return res
+          .cookie('accessToken', generatedToken.accessToken, {
+            maxAge: 60 * 60 * 1000,
+            secure: false,
+            httpOnly: true,
+          })
+          .json({
+            success: true,
+            status: 200,
+            message: 'authorized',
+          });
+      } catch (error) {
+        const errMsg: ErrorResponse = {
+          status: 403,
+          message: 'token is invalid or expired 1',
+        };
+
+        return next(errMsg);
+      }
+    }
+
     try {
       jwt.verify(accessToken as string, process.env.TOKEN_SECRET as string);
     } catch (error) {
-      if (error) {
-        try {
-          const decoded: any = jwt.verify(
-            refreshToken as string,
-            process.env.TOKEN_SECRET as string
-          );
-          const id = decoded.id;
-          const username = decoded.username;
-          const generatedToken = generateAccessToken({ id, username });
+      const errMsg: ErrorResponse = {
+        status: 403,
+        message: 'token is invalid or expired 2',
+      };
 
-          return res
-            .cookie('accessToken', generatedToken.accessToken, {
-              maxAge: 60 * 60 * 1000,
-              secure: false,
-              httpOnly: true,
-            })
-            .json({
-              success: true,
-              status: 200,
-              message: 'authorized',
-            });
-        } catch (error) {
-          const errMsg: ErrorResponse = {
-            status: 403,
-            message: 'token is invalid or expired',
-          };
-
-          return next(errMsg);
-        }
-      }
+      return next(errMsg);
     }
 
     return res.json({
@@ -136,6 +154,18 @@ const AuthController = {
       status: 200,
       message: 'authorized',
     });
+  },
+  logout: async (req: Request, res: Response, next: NextFunction) => {
+    res
+      .cookie('accessToken', '', {
+        httpOnly: true,
+        maxAge: 0,
+      })
+      .cookie('refreshToken', '', {
+        httpOnly: true,
+        maxAge: 0,
+      })
+      .end();
   },
 };
 

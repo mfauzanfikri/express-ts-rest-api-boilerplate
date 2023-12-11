@@ -5,7 +5,8 @@ const router: Router = express.Router();
 const controller = AuthController;
 
 router.post('/', controller.post);
-router.post('/token', controller.AuthToken);
+router.post('/token', controller.authToken);
+router.get('/logout', controller.logout);
 
 const authRouter = router;
 

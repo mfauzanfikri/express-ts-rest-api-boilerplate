@@ -18,6 +18,9 @@ export const findUserByUsername = async (username: string) => {
     where: {
       username: username,
     },
+    include: {
+      userLevel: true,
+    },
   });
 
   return user;
