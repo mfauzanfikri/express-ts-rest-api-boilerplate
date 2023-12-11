@@ -33,6 +33,7 @@ export type UserData = {
 export type UserResource = {
   id: number;
   username: string;
+  userLevelId: number;
   userLevel: string;
   employee: string;
   createdAt: Date;

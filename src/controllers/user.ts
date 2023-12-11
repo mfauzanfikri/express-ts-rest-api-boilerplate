@@ -21,6 +21,7 @@ const UserController = {
       const obj: UserResource = {
         id: user.id,
         username: user.username,
+        userLevelId: user.userLevelId,
         userLevel: user.userLevel.level,
         employee: `${process.env.BASE_URL}/employee/${user.employeeId}`,
         createdAt: user.createdAt,
@@ -73,6 +74,7 @@ const UserController = {
     const user: UserResource = {
       id: getUser.id,
       username: getUser.username,
+      userLevelId: getUser.userLevelId,
       userLevel: getUser.userLevel.level,
       employee: `${process.env.BASE_URL}/employee/${getUser.employeeId}`,
       createdAt: getUser.createdAt,
@@ -136,6 +138,7 @@ const UserController = {
       const resData: UserResource = {
         id: createdUser.id,
         username: createdUser.username,
+        userLevelId: createdUser.userLevelId,
         userLevel: createdUser.userLevel.level,
         employee: `${process.env.BASE_URL}/employee/${createdUser.employeeId}`,
         createdAt: createdUser.createdAt,
@@ -242,6 +245,7 @@ const UserController = {
       const resData: UserResource = {
         id: updatedEmployee.id,
         username: updatedEmployee.username,
+        userLevelId: updatedEmployee.userLevelId,
         userLevel: updatedEmployee.userLevel.level,
         employee: `${process.env.BASE_URL}/employee/${updatedEmployee.employeeId}`,
         createdAt: updatedEmployee.createdAt,
