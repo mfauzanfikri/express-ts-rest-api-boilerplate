@@ -17,7 +17,7 @@ export type OutgoingLetterResource = {
   to: string;
   about: string;
   status: String;
-  path: string;
+  path: string | null;
   createdAt: Date;
   updatedAt: Date | null;
 };

@@ -5,6 +5,8 @@ import IncomingLetterModel, {
   IncomingLetterResource,
 } from '../models/incomingLetter';
 import { ErrorResponse, SuccessResponse } from '../types/responses';
+import { readFile, readFileSync, readSync, unlinkSync } from 'fs';
+import pathModule from 'path';
 
 const model = IncomingLetterModel;
 
@@ -25,7 +27,7 @@ const IncomingLetterController = {
         sender: incomingLetter.sender,
         about: incomingLetter.about,
         status: incomingLetter.status.name,
-        path: incomingLetter.path,
+        path: `${process.env.BASE_URL}/incoming_letters/file/${incomingLetter.id}`,
         createdAt: incomingLetter.createdAt,
         updatedAt: incomingLetter.updatedAt,
       };
@@ -75,7 +77,7 @@ const IncomingLetterController = {
       sender: getIncomingLetter.sender,
       about: getIncomingLetter.about,
       status: getIncomingLetter.status.name,
-      path: getIncomingLetter.path,
+      path: `${process.env.BASE_URL}/incoming_letters/file/${getIncomingLetter.id}`,
       createdAt: getIncomingLetter.createdAt,
       updatedAt: getIncomingLetter.updatedAt,
     };
@@ -100,6 +102,7 @@ const IncomingLetterController = {
 
       return next(err);
     }
+
     const incomingLetter = await model.findFirst({
       where: { id },
       select: { path: true },
@@ -114,7 +117,29 @@ const IncomingLetterController = {
       return next(err);
     }
 
-    res.sendFile(incomingLetter.path);
+    const path = incomingLetter.path;
+
+    if (!path) {
+      const err: ErrorResponse = {
+        status: 404,
+        message: 'incomingLetter exists, but the file does not exist',
+      };
+
+      return next(err);
+    }
+
+    try {
+      readFileSync(path);
+    } catch (error) {
+      const err: ErrorResponse = {
+        status: 404,
+        message: 'incomingLetter exists, but the file does not exist',
+      };
+
+      return next(err);
+    }
+
+    res.sendFile(path);
   },
 
   post: async (req: Request, res: Response, next: NextFunction) => {
@@ -176,7 +201,7 @@ const IncomingLetterController = {
         sender: createdIncomingLetter.sender,
         about: createdIncomingLetter.about,
         status: createdIncomingLetter.status.name,
-        path: createdIncomingLetter.path,
+        path: `${process.env.BASE_URL}/incoming_letters/file/${createdIncomingLetter.id}`,
         createdAt: createdIncomingLetter.createdAt,
         updatedAt: createdIncomingLetter.updatedAt,
       };
@@ -190,13 +215,68 @@ const IncomingLetterController = {
 
       res.json(response);
     } catch (error) {
-      const errRes: ErrorResponse = {
+      const err: ErrorResponse = {
         status: 500,
         message: 'there is something wrong, try again later',
       };
 
-      return next(errRes);
+      return next(err);
     }
+  },
+
+  postFile: async (req: Request, res: Response, next: NextFunction) => {
+    const id: number =
+      typeof req.body.id === 'string'
+        ? Number.parseInt(req.body.id)
+        : typeof req.body.id === 'number' && req.body.id;
+    const file = req.file;
+
+    if (!file || !id) {
+      const err: ErrorResponse = {
+        status: 422,
+        message: 'file or id field missing',
+      };
+
+      if (file && !id) {
+        unlinkSync(file.path);
+      }
+
+      return next(err);
+    }
+
+    if (file.mimetype !== 'application/pdf') {
+      const err: ErrorResponse = {
+        status: 415,
+        message: 'only pdf file is acceptable for incomingLetter field',
+      };
+
+      unlinkSync(file.path);
+
+      return next(err);
+    }
+
+    const path = pathModule.join(__dirname, '../../' + file.path);
+
+    try {
+      await model.update({
+        where: { id },
+        data: { path },
+      });
+    } catch (error) {
+      const err: ErrorResponse = {
+        status: 500,
+        message: 'there is something wrong, try again later',
+      };
+
+      return next(err);
+    }
+
+    const successResponse: SuccessResponse = {
+      success: true,
+      message: 'file saved',
+    };
+
+    res.json(successResponse);
   },
 
   put: async (req: Request, res: Response, next: NextFunction) => {
@@ -253,12 +333,12 @@ const IncomingLetterController = {
         },
       });
     } catch (error) {
-      const errRes: ErrorResponse = {
+      const err: ErrorResponse = {
         status: 500,
         message: 'there is something wrong, try again later',
       };
 
-      return next(errRes);
+      return next(err);
     }
 
     if (!isExist) {
@@ -285,7 +365,7 @@ const IncomingLetterController = {
         sender: updatedIncomingLetter.sender,
         about: updatedIncomingLetter.about,
         status: updatedIncomingLetter.status.name,
-        path: updatedIncomingLetter.path,
+        path: `${process.env.BASE_URL}/incoming_letters/file/${updatedIncomingLetter.id}`,
         createdAt: updatedIncomingLetter.createdAt,
         updatedAt: updatedIncomingLetter.updatedAt,
       };
@@ -299,12 +379,12 @@ const IncomingLetterController = {
 
       res.json(response);
     } catch (error) {
-      const errRes: ErrorResponse = {
+      const err: ErrorResponse = {
         status: 500,
         message: 'there is something wrong, try again later',
       };
 
-      return next(errRes);
+      return next(err);
     }
   },
 
@@ -331,12 +411,12 @@ const IncomingLetterController = {
         },
       });
     } catch (error) {
-      const errRes: ErrorResponse = {
+      const err: ErrorResponse = {
         status: 500,
         message: 'there is something wrong, try again later',
       };
 
-      return next(errRes);
+      return next(err);
     }
 
     if (!isExist) {
@@ -363,12 +443,12 @@ const IncomingLetterController = {
 
       res.json(response);
     } catch (error) {
-      const errRes: ErrorResponse = {
+      const err: ErrorResponse = {
         status: 500,
         message: 'there is something wrong, try again later',
       };
 
-      return next(errRes);
+      return next(err);
     }
   },
 };

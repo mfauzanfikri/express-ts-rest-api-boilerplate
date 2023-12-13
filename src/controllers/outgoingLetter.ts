@@ -5,6 +5,8 @@ import OutgoingLetterModel, {
   OutgoingLetterResource,
 } from '../models/outgoingLetter';
 import { ErrorResponse, SuccessResponse } from '../types/responses';
+import { readFileSync } from 'fs';
+import pathModule from 'path';
 
 const model = OutgoingLetterModel;
 
@@ -25,7 +27,7 @@ const OutgoingLetterController = {
         to: outgoingLetter.to,
         about: outgoingLetter.about,
         status: outgoingLetter.status.name,
-        path: outgoingLetter.path,
+        path: `${process.env.BASE_URL}/outgoind_letters/file/${outgoingLetter.id}`,
         createdAt: outgoingLetter.createdAt,
         updatedAt: outgoingLetter.updatedAt,
       };
@@ -75,7 +77,7 @@ const OutgoingLetterController = {
       to: getOutgoingLetter.to,
       about: getOutgoingLetter.about,
       status: getOutgoingLetter.status.name,
-      path: getOutgoingLetter.path,
+      path: `${process.env.BASE_URL}/outgoind_letters/file/${getOutgoingLetter.id}`,
       createdAt: getOutgoingLetter.createdAt,
       updatedAt: getOutgoingLetter.updatedAt,
     };
@@ -87,6 +89,57 @@ const OutgoingLetterController = {
     };
 
     res.json(response);
+  },
+
+  getFile: async (req: Request, res: Response, next: NextFunction) => {
+    const id = Number.parseInt(req.params.id);
+
+    if (!id) {
+      const err: ErrorResponse = {
+        status: 422,
+        message: 'id parameter required',
+      };
+
+      return next(err);
+    }
+
+    const outgoingLetter = await model.findFirst({
+      where: { id },
+      select: { path: true },
+    });
+
+    if (!outgoingLetter) {
+      const err: ErrorResponse = {
+        status: 404,
+        message: 'outgoingLetter not found',
+      };
+
+      return next(err);
+    }
+
+    const path = outgoingLetter.path;
+
+    if (!path) {
+      const err: ErrorResponse = {
+        status: 404,
+        message: 'outgoingLetter exists, but the file does not exist',
+      };
+
+      return next(err);
+    }
+
+    try {
+      readFileSync(path);
+    } catch (error) {
+      const err: ErrorResponse = {
+        status: 404,
+        message: 'outgoingLetter exists, but the file does not exist',
+      };
+
+      return next(err);
+    }
+
+    res.sendFile(path);
   },
 
   post: async (req: Request, res: Response, next: NextFunction) => {
@@ -116,12 +169,6 @@ const OutgoingLetterController = {
       return next(err);
     }
 
-    const originalPath = req.file?.path.replace(/\\/g, '/')!;
-    const path =
-      process.env.BASE_URL +
-      '/' +
-      originalPath.substring(originalPath.indexOf('/') + 1);
-
     try {
       const createdOutgoingLetter = await model.create({
         data: {
@@ -129,7 +176,6 @@ const OutgoingLetterController = {
           to: data.to,
           about: data.about,
           statusId: data.statusId,
-          path,
         },
         include: {
           status: true,
@@ -142,7 +188,7 @@ const OutgoingLetterController = {
         to: createdOutgoingLetter.to,
         about: createdOutgoingLetter.about,
         status: createdOutgoingLetter.status.name,
-        path: createdOutgoingLetter.path,
+        path: `${process.env.BASE_URL}/outgoind_letters/file/${createdOutgoingLetter.id}`,
         createdAt: createdOutgoingLetter.createdAt,
         updatedAt: createdOutgoingLetter.updatedAt,
       };
@@ -163,6 +209,61 @@ const OutgoingLetterController = {
 
       return next(errRes);
     }
+  },
+
+  postFile: async (req: Request, res: Response, next: NextFunction) => {
+    const id: number =
+      typeof req.body.id === 'string'
+        ? Number.parseInt(req.body.id)
+        : typeof req.body.id === 'number' && req.body.id;
+    const file = req.file;
+
+    if (!file || !id) {
+      const err: ErrorResponse = {
+        status: 422,
+        message: 'file or id field missing',
+      };
+
+      if (file && !id) {
+        unlinkSync(file.path);
+      }
+
+      return next(err);
+    }
+
+    if (file.mimetype !== 'application/pdf') {
+      const err: ErrorResponse = {
+        status: 415,
+        message: 'only pdf file is acceptable for incomingLetter field',
+      };
+
+      unlinkSync(file.path);
+
+      return next(err);
+    }
+
+    const path = pathModule.join(__dirname, '../../' + file.path);
+
+    try {
+      await model.update({
+        where: { id },
+        data: { path },
+      });
+    } catch (error) {
+      const err: ErrorResponse = {
+        status: 500,
+        message: 'there is something wrong, try again later',
+      };
+
+      return next(err);
+    }
+
+    const successResponse: SuccessResponse = {
+      success: true,
+      message: 'file saved',
+    };
+
+    res.json(successResponse);
   },
 
   put: async (req: Request, res: Response, next: NextFunction) => {
@@ -245,7 +346,7 @@ const OutgoingLetterController = {
         to: updatedOutgoingLetter.to,
         about: updatedOutgoingLetter.about,
         status: updatedOutgoingLetter.status.name,
-        path: updatedOutgoingLetter.path,
+        path: `${process.env.BASE_URL}/outgoind_letters/file/${updatedOutgoingLetter.id}`,
         createdAt: updatedOutgoingLetter.createdAt,
         updatedAt: updatedOutgoingLetter.updatedAt,
       };
@@ -334,3 +435,6 @@ const OutgoingLetterController = {
 };
 
 export default OutgoingLetterController;
+function unlinkSync(path: string) {
+  throw new Error('Function not implemented.');
+}

@@ -115,7 +115,7 @@ model OutgoingLetter {
   to        String
   about     String
   statusId  Int       @map("status_id")
-  path      String
+  path      String?
   createdAt DateTime  @default(now()) @map("created_at")
   updatedAt DateTime? @updatedAt @map("updated_at")
 

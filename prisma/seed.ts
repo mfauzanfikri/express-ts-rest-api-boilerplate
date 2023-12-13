@@ -239,7 +239,7 @@ async function main() {
     },
   });
 
-  // api key
+  // apikey
   const apikey1 = await prisma.apiKey.upsert({
     where: { id: 1 },
     update: {},
@@ -258,6 +258,7 @@ async function main() {
     },
   });
 
+  // incomingLetter
   const incomingLetter1 = await prisma.incomingLetter.upsert({
     where: { id: 1 },
     update: {},
@@ -275,6 +276,29 @@ async function main() {
     create: {
       refNo: '002',
       sender: 'B',
+      about: 'Surat Dinas',
+      statusId: 1,
+    },
+  });
+
+  // outgoingLetter
+  const outgoingLetter1 = await prisma.outgoingLetter.upsert({
+    where: { id: 1 },
+    update: {},
+    create: {
+      refNo: '001',
+      to: 'A',
+      about: 'Undangan',
+      statusId: 1,
+    },
+  });
+
+  const outgoingLetter2 = await prisma.outgoingLetter.upsert({
+    where: { id: 2 },
+    update: {},
+    create: {
+      refNo: '002',
+      to: 'A',
       about: 'Surat Dinas',
       statusId: 1,
     },
@@ -313,6 +337,8 @@ async function main() {
     apikey2,
     incomingLetter1,
     incomingLetter2,
+    outgoingLetter1,
+    outgoingLetter2,
   });
 }
 main()
