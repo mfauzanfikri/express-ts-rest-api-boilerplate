@@ -258,6 +258,28 @@ async function main() {
     },
   });
 
+  const incomingLetter1 = await prisma.incomingLetter.upsert({
+    where: { id: 1 },
+    update: {},
+    create: {
+      refNo: '001',
+      sender: 'A',
+      about: 'Undangan',
+      statusId: 1,
+    },
+  });
+
+  const incomingLetter2 = await prisma.incomingLetter.upsert({
+    where: { id: 2 },
+    update: {},
+    create: {
+      refNo: '002',
+      sender: 'B',
+      about: 'Surat Dinas',
+      statusId: 1,
+    },
+  });
+
   console.log({
     userLevel1,
     userLevel2,
@@ -287,6 +309,10 @@ async function main() {
     section9,
     employee,
     user,
+    apikey1,
+    apikey2,
+    incomingLetter1,
+    incomingLetter2,
   });
 }
 main()
