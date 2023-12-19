@@ -3,6 +3,7 @@
 
 # Folders
 node_modules
+prisma/migrations
 
 # Files
 package-lock.json

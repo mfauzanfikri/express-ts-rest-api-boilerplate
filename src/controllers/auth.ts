@@ -38,6 +38,16 @@ const AuthController = {
       return false;
     }
 
+    if (username !== user.username) {
+      const err: ErrorResponse = {
+        status: 401,
+        message: 'Email or password is wrong.',
+      };
+
+      next(err);
+      return false;
+    }
+
     const userResource: UserResource = {
       id: user.id,
       username: user.username,

@@ -16,6 +16,9 @@ const OutgoingLetterController = {
       include: {
         status: true,
       },
+      orderBy: {
+        date: 'desc',
+      },
     });
 
     let outgoingLetters: any = [];
@@ -27,6 +30,7 @@ const OutgoingLetterController = {
         to: outgoingLetter.to,
         about: outgoingLetter.about,
         status: outgoingLetter.status.name,
+        date: outgoingLetter.date,
         path: `${process.env.BASE_URL}/outgoind_letters/file/${outgoingLetter.id}`,
         createdAt: outgoingLetter.createdAt,
         updatedAt: outgoingLetter.updatedAt,
@@ -77,6 +81,7 @@ const OutgoingLetterController = {
       to: getOutgoingLetter.to,
       about: getOutgoingLetter.about,
       status: getOutgoingLetter.status.name,
+      date: getOutgoingLetter.date,
       path: `${process.env.BASE_URL}/outgoind_letters/file/${getOutgoingLetter.id}`,
       createdAt: getOutgoingLetter.createdAt,
       updatedAt: getOutgoingLetter.updatedAt,
@@ -145,10 +150,17 @@ const OutgoingLetterController = {
   post: async (req: Request, res: Response, next: NextFunction) => {
     const data: OutgoingLetterData = JSON.parse(req.body.data);
 
-    if (!req.file || !data.refNo || !data.to || !data.about || !data.statusId) {
+    if (
+      !req.file ||
+      !data.refNo ||
+      !data.to ||
+      !data.about ||
+      !data.date ||
+      !data.statusId
+    ) {
       const err: ErrorResponse = {
         status: 422,
-        message: 'refNo, to, about, and statusId parameters required',
+        message: 'refNo, to, about, date, and statusId parameters required',
       };
 
       return next(err);
@@ -175,6 +187,7 @@ const OutgoingLetterController = {
           refNo: data.refNo,
           to: data.to,
           about: data.about,
+          date: data.date,
           statusId: data.statusId,
         },
         include: {
@@ -188,6 +201,7 @@ const OutgoingLetterController = {
         to: createdOutgoingLetter.to,
         about: createdOutgoingLetter.about,
         status: createdOutgoingLetter.status.name,
+        date: createdOutgoingLetter.date,
         path: `${process.env.BASE_URL}/outgoind_letters/file/${createdOutgoingLetter.id}`,
         createdAt: createdOutgoingLetter.createdAt,
         updatedAt: createdOutgoingLetter.updatedAt,
@@ -282,10 +296,17 @@ const OutgoingLetterController = {
       return next(err);
     }
 
-    if (!req.file && !data.refNo && !data.to && !data.about && !data.statusId) {
+    if (
+      !req.file &&
+      !data.refNo &&
+      !data.to &&
+      !data.about &&
+      !data.date &&
+      !data.statusId
+    ) {
       const err: ErrorResponse = {
         status: 422,
-        message: 'refNo, to, about, or statusId parameters required',
+        message: 'refNo, to, about, date, or statusId parameters required',
       };
 
       return next(err);
@@ -298,6 +319,7 @@ const OutgoingLetterController = {
         key !== 'refNo' &&
         key !== 'to' &&
         key !== 'about' &&
+        key !== 'date' &&
         key !== 'statusId'
       ) {
         continue;
@@ -346,6 +368,7 @@ const OutgoingLetterController = {
         to: updatedOutgoingLetter.to,
         about: updatedOutgoingLetter.about,
         status: updatedOutgoingLetter.status.name,
+        date: updatedOutgoingLetter.date,
         path: `${process.env.BASE_URL}/outgoind_letters/file/${updatedOutgoingLetter.id}`,
         createdAt: updatedOutgoingLetter.createdAt,
         updatedAt: updatedOutgoingLetter.updatedAt,

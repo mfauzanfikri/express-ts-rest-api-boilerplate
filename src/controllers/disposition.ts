@@ -114,20 +114,20 @@ const DispositionController = {
       return next(err);
     }
 
-    const isExist = await model.findFirst({
-      where: {
-        from: data.from,
-      },
-    });
+    // const isExist = await model.findFirst({
+    //   where: {
+    //     from: data.from,
+    //   },
+    // });
 
-    if (isExist) {
-      const err: ErrorResponse = {
-        status: 409,
-        message: 'incomingLetter already exists',
-      };
+    // if (isExist) {
+    //   const err: ErrorResponse = {
+    //     status: 409,
+    //     message: 'incomingLetter already exists',
+    //   };
 
-      return next(err);
-    }
+    //   return next(err);
+    // }
 
     try {
       const createdDisposition = await model.create({

@@ -16,6 +16,9 @@ const IncomingLetterController = {
       include: {
         status: true,
       },
+      orderBy: {
+        date: 'desc',
+      },
     });
 
     let incomingLetters: any = [];
@@ -27,6 +30,7 @@ const IncomingLetterController = {
         sender: incomingLetter.sender,
         about: incomingLetter.about,
         status: incomingLetter.status.name,
+        date: incomingLetter.date,
         path: `${process.env.BASE_URL}/incoming_letters/file/${incomingLetter.id}`,
         createdAt: incomingLetter.createdAt,
         updatedAt: incomingLetter.updatedAt,
@@ -77,6 +81,7 @@ const IncomingLetterController = {
       sender: getIncomingLetter.sender,
       about: getIncomingLetter.about,
       status: getIncomingLetter.status.name,
+      date: getIncomingLetter.date,
       path: `${process.env.BASE_URL}/incoming_letters/file/${getIncomingLetter.id}`,
       createdAt: getIncomingLetter.createdAt,
       updatedAt: getIncomingLetter.updatedAt,
@@ -150,11 +155,12 @@ const IncomingLetterController = {
       !data.refNo ||
       !data.sender ||
       !data.about ||
+      !data.date ||
       !data.statusId
     ) {
       const err: ErrorResponse = {
         status: 422,
-        message: 'refNo, sender, about, and statusId parameters required',
+        message: 'refNo, sender, about, date, and statusId parameters required',
       };
 
       return next(err);
@@ -187,6 +193,7 @@ const IncomingLetterController = {
           refNo: data.refNo,
           sender: data.sender,
           about: data.about,
+          date: data.date,
           statusId: data.statusId,
           path,
         },
@@ -201,6 +208,7 @@ const IncomingLetterController = {
         sender: createdIncomingLetter.sender,
         about: createdIncomingLetter.about,
         status: createdIncomingLetter.status.name,
+        date: createdIncomingLetter.date,
         path: `${process.env.BASE_URL}/incoming_letters/file/${createdIncomingLetter.id}`,
         createdAt: createdIncomingLetter.createdAt,
         updatedAt: createdIncomingLetter.updatedAt,
@@ -300,11 +308,12 @@ const IncomingLetterController = {
       !data.refNo &&
       !data.sender &&
       !data.about &&
+      !data.date &&
       !data.statusId
     ) {
       const err: ErrorResponse = {
         status: 422,
-        message: 'refNo, sender, about, or statusId parameters required',
+        message: 'refNo, sender, about, date, or statusId parameters required',
       };
 
       return next(err);
@@ -317,6 +326,7 @@ const IncomingLetterController = {
         key !== 'refNo' &&
         key !== 'sender' &&
         key !== 'about' &&
+        key !== 'date' &&
         key !== 'statusId'
       ) {
         continue;
@@ -365,6 +375,7 @@ const IncomingLetterController = {
         sender: updatedIncomingLetter.sender,
         about: updatedIncomingLetter.about,
         status: updatedIncomingLetter.status.name,
+        date: updatedIncomingLetter.date,
         path: `${process.env.BASE_URL}/incoming_letters/file/${updatedIncomingLetter.id}`,
         createdAt: updatedIncomingLetter.createdAt,
         updatedAt: updatedIncomingLetter.updatedAt,

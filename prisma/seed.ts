@@ -122,7 +122,7 @@ async function main() {
     where: { id: 1 },
     update: {},
     create: {
-      name: 'Diproses',
+      name: 'diproses',
     },
   });
 
@@ -130,7 +130,7 @@ async function main() {
     where: { id: 2 },
     update: {},
     create: {
-      name: 'Ditindaklanjuti',
+      name: 'ditindaklanjuti',
     },
   });
 
@@ -138,7 +138,7 @@ async function main() {
     where: { id: 3 },
     update: {},
     create: {
-      name: 'Diarsipkan',
+      name: 'diarsipkan',
     },
   });
 
@@ -266,6 +266,7 @@ async function main() {
       refNo: '001',
       sender: 'A',
       about: 'Undangan',
+      date: new Date(Date.now()),
       statusId: 1,
     },
   });
@@ -277,6 +278,7 @@ async function main() {
       refNo: '002',
       sender: 'B',
       about: 'Surat Dinas',
+      date: new Date(Date.now() - 100000000000),
       statusId: 1,
     },
   });
@@ -289,6 +291,7 @@ async function main() {
       refNo: '001',
       to: 'A',
       about: 'Undangan',
+      date: new Date(Date.now()),
       statusId: 1,
     },
   });
@@ -300,6 +303,7 @@ async function main() {
       refNo: '002',
       to: 'A',
       about: 'Surat Dinas',
+      date: new Date(Date.now() - 100000000000),
       statusId: 1,
     },
   });

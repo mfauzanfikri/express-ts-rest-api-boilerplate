@@ -82,6 +82,7 @@ model IncomingLetter {
   refNo     String    @map("ref_no")
   sender    String
   about     String
+  date      DateTime
   statusId  Int       @map("status_id")
   path      String?
   createdAt DateTime  @default(now()) @map("created_at")
@@ -114,6 +115,7 @@ model OutgoingLetter {
   refNo     String    @map("ref_no")
   to        String
   about     String
+  date      DateTime
   statusId  Int       @map("status_id")
   path      String?
   createdAt DateTime  @default(now()) @map("created_at")

@@ -16,7 +16,9 @@ export const findUserById = async (id: number) => {
 export const findUserByUsername = async (username: string) => {
   const user = await UserModel.findFirst({
     where: {
-      username: username,
+      username: {
+        equals: username,
+      },
     },
     include: {
       userLevel: true,

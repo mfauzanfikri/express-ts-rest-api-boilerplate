@@ -8,6 +8,7 @@ export type OutgoingLetterData = {
   refNo: string;
   to: string;
   about: string;
+  date: Date;
   statusId: number;
 };
 
@@ -16,6 +17,7 @@ export type OutgoingLetterResource = {
   refNo: string;
   to: string;
   about: string;
+  date: Date;
   status: String;
   path: string | null;
   createdAt: Date;
