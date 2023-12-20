@@ -12,14 +12,24 @@ const model = OutgoingLetterModel;
 
 const OutgoingLetterController = {
   get: async (req: Request, res: Response, next: NextFunction) => {
-    const getOutgoingLetters = await model.findMany({
-      include: {
-        status: true,
-      },
-      orderBy: {
-        date: 'desc',
-      },
-    });
+    let getOutgoingLetters;
+    try {
+      getOutgoingLetters = await model.findMany({
+        include: {
+          status: true,
+        },
+        orderBy: {
+          date: 'desc',
+        },
+      });
+    } catch (error) {
+      const errRes: ErrorResponse = {
+        status: 500,
+        message: 'there is something wrong, try again later',
+      };
+
+      return next(errRes);
+    }
 
     let outgoingLetters: any = [];
 
@@ -166,11 +176,21 @@ const OutgoingLetterController = {
       return next(err);
     }
 
-    const isExist = await model.findFirst({
-      where: {
-        refNo: data.refNo,
-      },
-    });
+    let isExist;
+    try {
+      isExist = await model.findFirst({
+        where: {
+          refNo: data.refNo,
+        },
+      });
+    } catch (error) {
+      const errRes: ErrorResponse = {
+        status: 500,
+        message: 'there is something wrong, try again later',
+      };
+
+      return next(errRes);
+    }
 
     if (isExist) {
       const err: ErrorResponse = {

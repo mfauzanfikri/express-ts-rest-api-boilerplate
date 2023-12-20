@@ -1,16 +1,26 @@
 import { NextFunction, Request, Response } from 'express';
-import { SuccessResponse } from '../types/responses';
+import { ErrorResponse, SuccessResponse } from '../types/responses';
 import PositionModel from '../models/position';
 
 const model = PositionModel;
 
 const PositionController = {
   get: async (req: Request, res: Response, next: NextFunction) => {
-    const positions = await model.findMany();
+    let positions;
+    try {
+      positions = await model.findMany();
+    } catch (error) {
+      const errRes: ErrorResponse = {
+        status: 500,
+        message: 'there is something wrong, try again later',
+      };
+
+      return next(errRes);
+    }
 
     const response: SuccessResponse = {
       success: true,
-      message: 'employees data fetched successfully',
+      message: 'positions data fetched successfully',
       data: positions,
     };
 

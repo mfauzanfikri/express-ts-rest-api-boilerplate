@@ -6,15 +6,25 @@ const model = UserModel;
 
 const UserController = {
   get: async (req: Request, res: Response, next: NextFunction) => {
-    const getUsers = await model.findMany({
-      include: {
-        userLevel: {
-          select: {
-            level: true,
+    let getUsers;
+    try {
+      getUsers = await model.findMany({
+        include: {
+          userLevel: {
+            select: {
+              level: true,
+            },
           },
         },
-      },
-    });
+      });
+    } catch (error) {
+      const errRes: ErrorResponse = {
+        status: 500,
+        message: 'there is something wrong, try again later',
+      };
+
+      return next(errRes);
+    }
 
     let users: any = [];
     getUsers.map((user) => {
@@ -51,16 +61,26 @@ const UserController = {
       return next(err);
     }
 
-    const getUser = await model.findFirst({
-      where: { id },
-      include: {
-        userLevel: {
-          select: {
-            level: true,
+    let getUser;
+    try {
+      getUser = await model.findFirst({
+        where: { id },
+        include: {
+          userLevel: {
+            select: {
+              level: true,
+            },
           },
         },
-      },
-    });
+      });
+    } catch (error) {
+      const errRes: ErrorResponse = {
+        status: 500,
+        message: 'there is something wrong, try again later',
+      };
+
+      return next(errRes);
+    }
 
     if (!getUser) {
       const err: ErrorResponse = {
@@ -103,11 +123,21 @@ const UserController = {
       return next(err);
     }
 
-    const isExist = await model.findFirst({
-      where: {
-        username: data.username,
-      },
-    });
+    let isExist;
+    try {
+      isExist = await model.findFirst({
+        where: {
+          username: data.username,
+        },
+      });
+    } catch (error) {
+      const errRes: ErrorResponse = {
+        status: 500,
+        message: 'there is something wrong, try again later',
+      };
+
+      return next(errRes);
+    }
 
     if (isExist) {
       const err: ErrorResponse = {

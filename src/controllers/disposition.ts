@@ -4,33 +4,35 @@ import DispositionModel, {
   DispositionData,
   DispositionResource,
 } from '../models/disposition';
-import IncomingLetterModel, {
-  IncomingLetterResult,
-  IncomingLetterData,
-  IncomingLetterResource,
-} from '../models/incomingLetter';
 import { ErrorResponse, SuccessResponse } from '../types/responses';
 
 const model = DispositionModel;
 
 const DispositionController = {
   get: async (req: Request, res: Response, next: NextFunction) => {
-    const getDispositions = await model.findMany({
-      include: {
-        instruction: true,
-      },
-    });
+    let getDispositions;
+    try {
+      getDispositions = await model.findMany({
+        include: {
+          dispositionStatus: true,
+        },
+      });
+    } catch (error) {
+      const errRes: ErrorResponse = {
+        status: 500,
+        message: 'there is something wrong, try again later',
+      };
+
+      return next(errRes);
+    }
 
     let dispositions: DispositionResource[] = [];
 
     getDispositions.map((disposition) => {
       const obj: DispositionResource = {
         id: disposition.id,
-        from: `${process.env.BASE_URL}/users/${disposition.from}`,
-        to: `${process.env.BASE_URL}/users/${disposition.to}`,
-        instruction: disposition.instruction.instruction,
-        notes: disposition.notes,
         incomingLetter: `${process.env.BASE_URL}/incoming_letters/${disposition.incomingLetterId}`,
+        status: disposition.dispositionStatus.name,
         createdAt: disposition.createdAt,
         updatedAt: disposition.updatedAt,
       };
@@ -58,12 +60,22 @@ const DispositionController = {
       return next(err);
     }
 
-    const getDisposition = await model.findFirst({
-      where: { id },
-      include: {
-        instruction: true,
-      },
-    });
+    let getDisposition;
+    try {
+      getDisposition = await model.findFirst({
+        where: { id },
+        include: {
+          dispositionStatus: true,
+        },
+      });
+    } catch (error) {
+      const errRes: ErrorResponse = {
+        status: 500,
+        message: 'there is something wrong, try again later',
+      };
+
+      return next(errRes);
+    }
 
     if (!getDisposition) {
       const err: ErrorResponse = {
@@ -76,11 +88,8 @@ const DispositionController = {
 
     const disposition: DispositionResource = {
       id: getDisposition.id,
-      from: `${process.env.BASE_URL}/users/${getDisposition.from}`,
-      to: `${process.env.BASE_URL}/users/${getDisposition.to}`,
-      instruction: getDisposition.instruction.instruction,
-      notes: getDisposition.notes,
       incomingLetter: `${process.env.BASE_URL}/incoming_letters/${getDisposition.incomingLetterId}`,
+      status: getDisposition.dispositionStatus.name,
       createdAt: getDisposition.createdAt,
       updatedAt: getDisposition.updatedAt,
     };
@@ -97,58 +106,54 @@ const DispositionController = {
   post: async (req: Request, res: Response, next: NextFunction) => {
     const data: DispositionData = JSON.parse(req.body.data);
 
-    if (
-      !req.file ||
-      !data.from ||
-      !data.to ||
-      !data.instructionId ||
-      !data.notes ||
-      !data.incomingLetterId
-    ) {
+    if (!data.incomingLetterId || !data.dispositionStatusId) {
       const err: ErrorResponse = {
         status: 422,
-        message:
-          'from, to, instructionId, notes, and incomingLetterId parameters required',
+        message: 'incomingLetterId and dispositionStatusId parameters required',
       };
 
       return next(err);
     }
 
-    // const isExist = await model.findFirst({
-    //   where: {
-    //     from: data.from,
-    //   },
-    // });
+    let isExist;
+    try {
+      isExist = await model.findFirst({
+        where: {
+          incomingLetterId: data.incomingLetterId,
+        },
+      });
+    } catch (error) {
+      const errRes: ErrorResponse = {
+        status: 500,
+        message: 'there is something wrong, try again later',
+      };
 
-    // if (isExist) {
-    //   const err: ErrorResponse = {
-    //     status: 409,
-    //     message: 'incomingLetter already exists',
-    //   };
+      return next(errRes);
+    }
 
-    //   return next(err);
-    // }
+    if (isExist) {
+      const err: ErrorResponse = {
+        status: 409,
+        message: 'disposition already exists',
+      };
+
+      return next(err);
+    }
 
     try {
       const createdDisposition = await model.create({
         data: {
-          from: data.from,
-          to: data.to,
-          instructionId: data.instructionId,
-          notes: data.notes,
           incomingLetterId: data.incomingLetterId,
+          dispositionStatusId: data.dispositionStatusId,
         },
         include: {
-          instruction: true,
+          dispositionStatus: true,
         },
       });
 
       const resData: DispositionResource = {
         id: createdDisposition.id,
-        from: `${process.env.BASE_URL}/users/${createdDisposition.from}`,
-        to: `${process.env.BASE_URL}/users/${createdDisposition.to}`,
-        instruction: createdDisposition.instruction.instruction,
-        notes: createdDisposition.notes,
+        status: createdDisposition.dispositionStatus.name,
         incomingLetter: `${process.env.BASE_URL}/incoming_letters/${createdDisposition.incomingLetterId}`,
         createdAt: createdDisposition.createdAt,
         updatedAt: createdDisposition.updatedAt,
@@ -188,17 +193,10 @@ const DispositionController = {
       return next(err);
     }
 
-    if (
-      !data.from &&
-      !data.to &&
-      !data.instructionId &&
-      !data.notes &&
-      !data.incomingLetterId
-    ) {
+    if (!data.incomingLetterId && !data.dispositionStatusId) {
       const err: ErrorResponse = {
         status: 422,
-        message:
-          'from, to, instructionId, notes or incomingLetterId parameters required',
+        message: 'incomingLetterId or dispositionStatusId parameters required',
       };
 
       return next(err);
@@ -207,13 +205,7 @@ const DispositionController = {
     let updateData = {};
 
     for (const key in data) {
-      if (
-        key !== 'from' &&
-        key !== 'to' &&
-        key !== 'instructionId' &&
-        key !== 'notes' &&
-        key !== 'incomingLetterId'
-      ) {
+      if (key !== 'incomingLetterId' && key !== 'dispositionStatusId') {
         continue;
       }
 
@@ -224,7 +216,7 @@ const DispositionController = {
     try {
       isExist = await model.findFirst({
         where: {
-          from: data.from,
+          incomingLetterId: data.incomingLetterId,
         },
       });
     } catch (error) {
@@ -250,17 +242,14 @@ const DispositionController = {
         where: { id: dispositionId },
         data: updateData,
         include: {
-          instruction: true,
+          dispositionStatus: true,
         },
       });
 
       const resData: DispositionResource = {
         id: updatedDisposition.id,
-        from: `${process.env.BASE_URL}/users/${updatedDisposition.from}`,
-        to: `${process.env.BASE_URL}/users/${updatedDisposition.to}`,
-        instruction: updatedDisposition.instruction.instruction,
-        notes: updatedDisposition.notes,
         incomingLetter: `${process.env.BASE_URL}/incoming_letters/${updatedDisposition.incomingLetterId}`,
+        status: updatedDisposition.dispositionStatus.name,
         createdAt: updatedDisposition.createdAt,
         updatedAt: updatedDisposition.updatedAt,
       };
@@ -317,7 +306,7 @@ const DispositionController = {
     if (!isExist) {
       const err: ErrorResponse = {
         status: 404,
-        message: 'incomingLetter does not exist',
+        message: 'disposition does not exist',
       };
 
       return next(err);
@@ -333,7 +322,7 @@ const DispositionController = {
       const response: SuccessResponse = {
         success: true,
         status: 204,
-        message: 'incomingLetter deleted',
+        message: 'disposition deleted',
       };
 
       res.json(response);

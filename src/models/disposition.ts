@@ -4,20 +4,14 @@ const prisma = new PrismaClient();
 const DispositionModel: PrismaClient['disposition'] = prisma.disposition;
 
 export type DispositionData = {
-  from: number;
-  to: number;
-  notes: string | null;
-  instructionId: number;
   incomingLetterId: number;
+  dispositionStatusId: number;
 };
 
 export type DispositionResource = {
   id: number;
-  from: string;
-  to: string;
-  notes: string | null;
-  instruction: string;
   incomingLetter: string;
+  status: string;
   createdAt: Date;
   updatedAt: Date | null;
 };

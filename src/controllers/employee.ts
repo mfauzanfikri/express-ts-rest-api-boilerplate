@@ -10,11 +10,21 @@ const model = EmployeeModel;
 
 const EmployeeController = {
   get: async (req: Request, res: Response, next: NextFunction) => {
-    const getEmployees = await model.findMany({
-      include: {
-        section: true,
-      },
-    });
+    let getEmployees;
+    try {
+      getEmployees = await model.findMany({
+        include: {
+          section: true,
+        },
+      });
+    } catch (error) {
+      const errRes: ErrorResponse = {
+        status: 500,
+        message: 'there is something wrong, try again later',
+      };
+
+      return next(errRes);
+    }
 
     let employees: any = [];
 
@@ -53,12 +63,22 @@ const EmployeeController = {
       return next(err);
     }
 
-    const getEmployee = await model.findFirst({
-      where: { id },
-      include: {
-        section: true,
-      },
-    });
+    let getEmployee;
+    try {
+      getEmployee = await model.findFirst({
+        where: { id },
+        include: {
+          section: true,
+        },
+      });
+    } catch (error) {
+      const errRes: ErrorResponse = {
+        status: 500,
+        message: 'there is something wrong, try again later',
+      };
+
+      return next(errRes);
+    }
 
     if (!getEmployee) {
       const err: ErrorResponse = {

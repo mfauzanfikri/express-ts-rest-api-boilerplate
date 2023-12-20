@@ -95,19 +95,42 @@ model IncomingLetter {
 }
 
 model Disposition {
-  id               Int       @id @default(autoincrement())
-  from             Int
-  to               Int
-  notes            String?
-  instructionId    Int       @map("instruction_id")
-  incomingLetterId Int       @map("incoming_letter_id")
-  createdAt        DateTime  @default(now()) @map("created_at")
-  updatedAt        DateTime? @updatedAt @map("updated_at")
+  id                  Int       @id @default(autoincrement())
+  incomingLetterId    Int       @unique @map("incoming_letter_id")
+  dispositionStatusId Int       @map("disposition_status_id")
+  createdAt           DateTime  @default(now()) @map("created_at")
+  updatedAt           DateTime? @updatedAt @map("updated_at")
 
-  incomingLetter IncomingLetter @relation(fields: [incomingLetterId], references: [id])
-  instruction    Instruction    @relation(fields: [instructionId], references: [id])
+  incomingLetter    IncomingLetter    @relation(fields: [incomingLetterId], references: [id])
+  dispositionStatus DispositionStatus @relation(fields: [dispositionStatusId], references: [id])
+  dispositionForm   DispositionForm[]
 
   @@map("disposition")
+}
+
+model DispositionForm {
+  id            Int       @id @default(autoincrement())
+  from          Int
+  to            Int
+  notes         String?
+  dispositionId Int       @map("dispotision_id")
+  instructionId Int       @map("instruction_id")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime? @updatedAt @map("updated_at")
+
+  disposition Disposition @relation(fields: [dispositionId], references: [id])
+  instruction Instruction @relation(fields: [instructionId], references: [id])
+
+  @@map("disposition_form")
+}
+
+model DispositionStatus {
+  id   Int    @id @default(autoincrement())
+  name String
+
+  disposition Disposition[]
+
+  @@map("disposition_status")
 }
 
 model OutgoingLetter {
@@ -137,10 +160,10 @@ model Status {
 }
 
 model Instruction {
-  id          Int    @id @default(autoincrement())
-  instruction String
+  id   Int    @id @default(autoincrement())
+  name String
 
-  disposition Disposition[]
+  dispositionForm DispositionForm[]
 
   @@map("instruction")
 }

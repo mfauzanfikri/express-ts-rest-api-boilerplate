@@ -1,16 +1,26 @@
 import { NextFunction, Request, Response } from 'express';
-import { SuccessResponse } from '../types/responses';
+import { ErrorResponse, SuccessResponse } from '../types/responses';
 import SectionModel from '../models/section';
 
 const model = SectionModel;
 
 const SectionController = {
   get: async (req: Request, res: Response, next: NextFunction) => {
-    const sections = await model.findMany();
+    let sections;
+    try {
+      sections = await model.findMany();
+    } catch (error) {
+      const errRes: ErrorResponse = {
+        status: 500,
+        message: 'there is something wrong, try again later',
+      };
+
+      return next(errRes);
+    }
 
     const response: SuccessResponse = {
       success: true,
-      message: 'employees data fetched successfully',
+      message: 'sections data fetched successfully',
       data: sections,
     };
 

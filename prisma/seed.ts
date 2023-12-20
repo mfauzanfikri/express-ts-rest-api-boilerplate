@@ -33,7 +33,7 @@ async function main() {
     where: { id: 1 },
     update: {},
     create: {
-      instruction: 'DIKETAHUI',
+      name: 'DIKETAHUI',
     },
   });
 
@@ -41,7 +41,7 @@ async function main() {
     where: { id: 2 },
     update: {},
     create: {
-      instruction: 'PENDAPAT / SARAN',
+      name: 'PENDAPAT / SARAN',
     },
   });
 
@@ -49,7 +49,7 @@ async function main() {
     where: { id: 3 },
     update: {},
     create: {
-      instruction: 'BICARA / LAPOR',
+      name: 'BICARA / LAPOR',
     },
   });
 
@@ -57,7 +57,7 @@ async function main() {
     where: { id: 4 },
     update: {},
     create: {
-      instruction: 'DIKAJI / PELAJARI',
+      name: 'DIKAJI / PELAJARI',
     },
   });
 
@@ -65,7 +65,7 @@ async function main() {
     where: { id: 5 },
     update: {},
     create: {
-      instruction: 'DITELITI',
+      name: 'DITELITI',
     },
   });
 
@@ -73,7 +73,7 @@ async function main() {
     where: { id: 6 },
     update: {},
     create: {
-      instruction: 'DILAKSANAKAN',
+      name: 'DILAKSANAKAN',
     },
   });
 
@@ -81,7 +81,7 @@ async function main() {
     where: { id: 7 },
     update: {},
     create: {
-      instruction: 'DIPROSES',
+      name: 'DIPROSES',
     },
   });
 
@@ -89,7 +89,7 @@ async function main() {
     where: { id: 8 },
     update: {},
     create: {
-      instruction: 'DIJAWAB',
+      name: 'DIJAWAB',
     },
   });
 
@@ -97,7 +97,7 @@ async function main() {
     where: { id: 9 },
     update: {},
     create: {
-      instruction: 'DIPEDOMANI',
+      name: 'DIPEDOMANI',
     },
   });
 
@@ -105,7 +105,7 @@ async function main() {
     where: { id: 10 },
     update: {},
     create: {
-      instruction: 'DIUMUMKAN',
+      name: 'DIUMUMKAN',
     },
   });
 
@@ -113,7 +113,7 @@ async function main() {
     where: { id: 11 },
     update: {},
     create: {
-      instruction: 'DIMONITOR',
+      name: 'DIMONITOR',
     },
   });
 
@@ -122,7 +122,7 @@ async function main() {
     where: { id: 1 },
     update: {},
     create: {
-      name: 'diproses',
+      name: 'terbuka',
     },
   });
 
@@ -130,12 +130,20 @@ async function main() {
     where: { id: 2 },
     update: {},
     create: {
-      name: 'ditindaklanjuti',
+      name: 'disposisi',
     },
   });
 
   const status3 = await prisma.status.upsert({
     where: { id: 3 },
+    update: {},
+    create: {
+      name: 'ditindaklanjuti',
+    },
+  });
+
+  const status4 = await prisma.status.upsert({
+    where: { id: 4 },
     update: {},
     create: {
       name: 'diarsipkan',

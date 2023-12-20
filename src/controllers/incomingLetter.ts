@@ -12,14 +12,24 @@ const model = IncomingLetterModel;
 
 const IncomingLetterController = {
   get: async (req: Request, res: Response, next: NextFunction) => {
-    const getIncomingLetters = await model.findMany({
-      include: {
-        status: true,
-      },
-      orderBy: {
-        date: 'desc',
-      },
-    });
+    let getIncomingLetters;
+    try {
+      getIncomingLetters = await model.findMany({
+        include: {
+          status: true,
+        },
+        orderBy: {
+          date: 'desc',
+        },
+      });
+    } catch (error) {
+      const errRes: ErrorResponse = {
+        status: 500,
+        message: 'there is something wrong, try again later',
+      };
+
+      return next(errRes);
+    }
 
     let incomingLetters: any = [];
 
@@ -59,12 +69,22 @@ const IncomingLetterController = {
       return next(err);
     }
 
-    const getIncomingLetter = await model.findFirst({
-      where: { id },
-      include: {
-        status: true,
-      },
-    });
+    let getIncomingLetter;
+    try {
+      getIncomingLetter = await model.findFirst({
+        where: { id },
+        include: {
+          status: true,
+        },
+      });
+    } catch (error) {
+      const errRes: ErrorResponse = {
+        status: 500,
+        message: 'there is something wrong, try again later',
+      };
+
+      return next(errRes);
+    }
 
     if (!getIncomingLetter) {
       const err: ErrorResponse = {
@@ -108,10 +128,20 @@ const IncomingLetterController = {
       return next(err);
     }
 
-    const incomingLetter = await model.findFirst({
-      where: { id },
-      select: { path: true },
-    });
+    let incomingLetter;
+    try {
+      incomingLetter = await model.findFirst({
+        where: { id },
+        select: { path: true },
+      });
+    } catch (error) {
+      const errRes: ErrorResponse = {
+        status: 500,
+        message: 'there is something wrong, try again later',
+      };
+
+      return next(errRes);
+    }
 
     if (!incomingLetter) {
       const err: ErrorResponse = {
@@ -166,11 +196,21 @@ const IncomingLetterController = {
       return next(err);
     }
 
-    const isExist = await model.findFirst({
-      where: {
-        refNo: data.refNo,
-      },
-    });
+    let isExist;
+    try {
+      isExist = await model.findFirst({
+        where: {
+          refNo: data.refNo,
+        },
+      });
+    } catch (error) {
+      const errRes: ErrorResponse = {
+        status: 500,
+        message: 'there is something wrong, try again later',
+      };
+
+      return next(errRes);
+    }
 
     if (isExist) {
       const err: ErrorResponse = {

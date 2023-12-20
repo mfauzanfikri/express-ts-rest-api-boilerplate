@@ -1,14 +1,13 @@
 import { NextFunction, Request, Response } from 'express';
 import { ErrorResponse, SuccessResponse } from '../types/responses';
-import UserLevelModel from '../models/userLevel';
+import DispositionStatusModel from '../models/dispositionStatu';
+const model = DispositionStatusModel;
 
-const model = UserLevelModel;
-
-const UserLevelController = {
+const DispositionStatusController = {
   get: async (req: Request, res: Response, next: NextFunction) => {
-    let userLevels;
+    let dispositionStatus;
     try {
-      userLevels = await model.findMany();
+      dispositionStatus = await model.findMany();
     } catch (error) {
       const errRes: ErrorResponse = {
         status: 500,
@@ -20,12 +19,12 @@ const UserLevelController = {
 
     const response: SuccessResponse = {
       success: true,
-      message: 'userLevels data fetched successfully',
-      data: userLevels,
+      message: 'dispositionStatus data fetched successfully',
+      data: dispositionStatus,
     };
 
     res.json(response);
   },
 };
 
-export default UserLevelController;
+export default DispositionStatusController;
