@@ -150,6 +150,23 @@ async function main() {
     },
   });
 
+  // dispositionStatus
+  const dispositionStatus1 = await prisma.dispositionStatus.upsert({
+    where: { id: 1 },
+    update: {},
+    create: {
+      name: 'proses',
+    },
+  });
+
+  const dispositionStatus2 = await prisma.dispositionStatus.upsert({
+    where: { id: 2 },
+    update: {},
+    create: {
+      name: 'selesai',
+    },
+  });
+
   // section
   const section1 = await prisma.section.upsert({
     where: { id: 1 },
@@ -320,6 +337,7 @@ async function main() {
     userLevel1,
     userLevel2,
     userLevel3,
+    userLevel4,
     insctruction1,
     insctruction2,
     insctruction3,
@@ -334,6 +352,9 @@ async function main() {
     status1,
     status2,
     status3,
+    status4,
+    dispositionStatus1,
+    dispositionStatus2,
     section1,
     section2,
     section3,
