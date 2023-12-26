@@ -195,10 +195,10 @@ const UserController = {
 
   put: async (req: Request, res: Response, next: NextFunction) => {
     const userId: number =
-      typeof req.body.userId === 'number'
+      typeof req.body.id === 'number'
         ? req.body.id
-        : Number.parseInt(req.body.userId);
-    const data: UserData = JSON.parse(req.body.data);
+        : Number.parseInt(req.body.id);
+    const data: UserData = req.body.data;
 
     if (!userId) {
       const err: ErrorResponse = {

@@ -50,17 +50,13 @@ const authToken = (req: Request, res: Response, next: NextFunction) => {
         const username = decoded.username;
         const generatedToken = generateAccessToken({ id, username });
 
-        return res
-          .cookie('accessToken', generatedToken.accessToken, {
-            maxAge: 60 * 60 * 1000,
-            secure: false,
-            httpOnly: true,
-          })
-          .json({
-            success: true,
-            status: 200,
-            message: 'authorized',
-          });
+        res.cookie('accessToken', generatedToken.accessToken, {
+          maxAge: 60 * 60 * 1000,
+          secure: false,
+          httpOnly: true,
+        });
+
+        return next();
       } catch (error) {
         const errMsg: ErrorResponse = {
           status: 403,
@@ -72,11 +68,7 @@ const authToken = (req: Request, res: Response, next: NextFunction) => {
     }
   }
 
-  return res.json({
-    success: true,
-    status: 200,
-    message: 'authorized',
-  });
+  next();
 };
 
 export default authToken;

@@ -16,7 +16,7 @@ const errorHandler = (
     return;
   }
 
-  res.status(err.status).json(err);
+  res.status(err.status || 500).json(err);
 };
 
 export default errorHandler;

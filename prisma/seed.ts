@@ -117,7 +117,7 @@ async function main() {
     },
   });
 
-  // status
+  // letter status
   const status1 = await prisma.status.upsert({
     where: { id: 1 },
     update: {},
@@ -136,14 +136,6 @@ async function main() {
 
   const status3 = await prisma.status.upsert({
     where: { id: 3 },
-    update: {},
-    create: {
-      name: 'ditindaklanjuti',
-    },
-  });
-
-  const status4 = await prisma.status.upsert({
-    where: { id: 4 },
     update: {},
     create: {
       name: 'diarsipkan',
@@ -303,7 +295,7 @@ async function main() {
       refNo: '002',
       sender: 'B',
       about: 'Surat Dinas',
-      date: new Date(Date.now() - 100000000000),
+      date: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
       statusId: 1,
     },
   });
@@ -328,7 +320,7 @@ async function main() {
       refNo: '002',
       to: 'A',
       about: 'Surat Dinas',
-      date: new Date(Date.now() - 100000000000),
+      date: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
       statusId: 1,
     },
   });
@@ -352,7 +344,6 @@ async function main() {
     status1,
     status2,
     status3,
-    status4,
     dispositionStatus1,
     dispositionStatus2,
     section1,

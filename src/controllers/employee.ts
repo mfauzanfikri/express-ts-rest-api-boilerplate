@@ -196,10 +196,10 @@ const EmployeeController = {
 
   put: async (req: Request, res: Response, next: NextFunction) => {
     const employeeId: number =
-      typeof req.body.employeeId === 'number'
+      typeof req.body.id === 'number'
         ? req.body.id
-        : Number.parseInt(req.body.employeeId);
-    const data: EmployeeData = JSON.parse(req.body.data);
+        : Number.parseInt(req.body.id);
+    const data: EmployeeData = req.body.data;
 
     if (!employeeId) {
       const err: ErrorResponse = {

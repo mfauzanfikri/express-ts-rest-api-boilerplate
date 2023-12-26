@@ -302,10 +302,10 @@ const OutgoingLetterController = {
 
   put: async (req: Request, res: Response, next: NextFunction) => {
     const outgoingLetterId: number =
-      typeof req.body.outgoingLetterId === 'number'
+      typeof req.body.id === 'number'
         ? req.body.id
-        : Number.parseInt(req.body.outgoingLetterId);
-    const data: OutgoingLetterData = JSON.parse(req.body.data);
+        : Number.parseInt(req.body.id);
+    const data: OutgoingLetterData = req.body.data;
 
     if (!outgoingLetterId) {
       const err: ErrorResponse = {

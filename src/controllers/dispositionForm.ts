@@ -169,10 +169,10 @@ const DispositionFormController = {
 
   put: async (req: Request, res: Response, next: NextFunction) => {
     const dispositionFormId: number =
-      typeof req.body.dispositionFormId === 'number'
+      typeof req.body.id === 'number'
         ? req.body.id
-        : Number.parseInt(req.body.dispositionFormId);
-    const data: DispositionFormData = JSON.parse(req.body.data);
+        : Number.parseInt(req.body.id);
+    const data: DispositionFormData = req.body.data;
 
     if (!dispositionFormId) {
       const err: ErrorResponse = {

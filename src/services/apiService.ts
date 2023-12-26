@@ -22,11 +22,15 @@ export const generateApiKey = () => {
 export const authKey = async (
   clientKey: string
 ): Promise<APIKeyResult | boolean> => {
-  const key = await model.findFirst({
-    where: {
-      key: { equals: encryptKey(clientKey) },
-    },
-  });
+  const key = await model
+    .findFirst({
+      where: {
+        key: { equals: encryptKey(clientKey) },
+      },
+    })
+    .catch(() => {
+      return false;
+    });
 
   if (!key) {
     return false;

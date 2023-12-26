@@ -41,7 +41,9 @@ const IncomingLetterController = {
         about: incomingLetter.about,
         status: incomingLetter.status.name,
         date: incomingLetter.date,
-        path: `${process.env.BASE_URL}/incoming_letters/file/${incomingLetter.id}`,
+        path: !incomingLetter.path
+          ? null
+          : `${process.env.BASE_URL}/incoming_letters/file/${incomingLetter.id}`,
         createdAt: incomingLetter.createdAt,
         updatedAt: incomingLetter.updatedAt,
       };
@@ -102,7 +104,9 @@ const IncomingLetterController = {
       about: getIncomingLetter.about,
       status: getIncomingLetter.status.name,
       date: getIncomingLetter.date,
-      path: `${process.env.BASE_URL}/incoming_letters/file/${getIncomingLetter.id}`,
+      path: !getIncomingLetter.path
+        ? null
+        : `${process.env.BASE_URL}/incoming_letters/file/${getIncomingLetter.id}`,
       createdAt: getIncomingLetter.createdAt,
       updatedAt: getIncomingLetter.updatedAt,
     };
@@ -178,7 +182,32 @@ const IncomingLetterController = {
   },
 
   post: async (req: Request, res: Response, next: NextFunction) => {
-    const data: IncomingLetterData = JSON.parse(req.body.data);
+    if (!req.file) {
+      const err: ErrorResponse = {
+        status: 422,
+        message:
+          'refNo, sender, about, date, statusId, and incomingLetter parameters required',
+      };
+
+      return next(err);
+    }
+
+    let data: IncomingLetterData;
+    const file = req.file;
+
+    try {
+      data = JSON.parse(req.body.data);
+    } catch (error) {
+      const err: ErrorResponse = {
+        status: 422,
+        message:
+          'refNo, sender, about, date, statusId, and incomingLetter parameters required',
+      };
+
+      unlinkSync(file.path);
+
+      return next(err);
+    }
 
     if (
       !req.file ||
@@ -190,13 +219,17 @@ const IncomingLetterController = {
     ) {
       const err: ErrorResponse = {
         status: 422,
-        message: 'refNo, sender, about, date, and statusId parameters required',
+        message:
+          'refNo, sender, about, date, statusId, and incomingLetter parameters required',
       };
+
+      unlinkSync(file.path);
 
       return next(err);
     }
 
     let isExist;
+
     try {
       isExist = await model.findFirst({
         where: {
@@ -218,14 +251,12 @@ const IncomingLetterController = {
         message: 'incoming letter already exists',
       };
 
+      unlinkSync(file.path);
+
       return next(err);
     }
 
-    const originalPath = req.file?.path.replace(/\\/g, '/')!;
-    const path =
-      process.env.BASE_URL +
-      '/' +
-      originalPath.substring(originalPath.indexOf('/') + 1);
+    const path = pathModule.join(__dirname, '../../' + file.path);
 
     try {
       const createdIncomingLetter = await model.create({
@@ -233,7 +264,7 @@ const IncomingLetterController = {
           refNo: data.refNo,
           sender: data.sender,
           about: data.about,
-          date: data.date,
+          date: new Date(data.date),
           statusId: data.statusId,
           path,
         },
@@ -249,7 +280,9 @@ const IncomingLetterController = {
         about: createdIncomingLetter.about,
         status: createdIncomingLetter.status.name,
         date: createdIncomingLetter.date,
-        path: `${process.env.BASE_URL}/incoming_letters/file/${createdIncomingLetter.id}`,
+        path: !createdIncomingLetter.path
+          ? null
+          : `${process.env.BASE_URL}/incoming_letters/file/${createdIncomingLetter.id}`,
         createdAt: createdIncomingLetter.createdAt,
         updatedAt: createdIncomingLetter.updatedAt,
       };
@@ -267,6 +300,8 @@ const IncomingLetterController = {
         status: 500,
         message: 'there is something wrong, try again later',
       };
+
+      unlinkSync(file.path);
 
       return next(err);
     }
@@ -327,12 +362,77 @@ const IncomingLetterController = {
     res.json(successResponse);
   },
 
+  putFile: async (req: Request, res: Response, next: NextFunction) => {
+    const id: number =
+      typeof req.body.id === 'string'
+        ? Number.parseInt(req.body.id)
+        : typeof req.body.id === 'number' && req.body.id;
+    const file = req.file;
+
+    if (!file || !id) {
+      const err: ErrorResponse = {
+        status: 422,
+        message: 'file or id field missing',
+      };
+
+      if (file && !id) {
+        unlinkSync(file.path);
+      }
+
+      return next(err);
+    }
+
+    if (file.mimetype !== 'application/pdf') {
+      const err: ErrorResponse = {
+        status: 415,
+        message: 'only pdf file is acceptable for incomingLetter field',
+      };
+
+      unlinkSync(file.path);
+
+      return next(err);
+    }
+
+    const path = pathModule.join(__dirname, '../../' + file.path);
+
+    try {
+      const letter = await model.findFirst({
+        where: {
+          id: id,
+        },
+      });
+
+      if (letter?.path) {
+        unlinkSync(letter.path);
+      }
+
+      await model.update({
+        where: { id },
+        data: { path },
+      });
+    } catch (error) {
+      const err: ErrorResponse = {
+        status: 500,
+        message: 'there is something wrong, try again later',
+      };
+
+      return next(err);
+    }
+
+    const successResponse: SuccessResponse = {
+      success: true,
+      message: 'file updated',
+    };
+
+    res.json(successResponse);
+  },
+
   put: async (req: Request, res: Response, next: NextFunction) => {
     const incomingLetterId: number =
-      typeof req.body.incomingLetterId === 'number'
+      typeof req.body.id === 'number'
         ? req.body.id
-        : Number.parseInt(req.body.incomingLetterId);
-    const data: IncomingLetterData = JSON.parse(req.body.data);
+        : Number.parseInt(req.body.id);
+    const data = req.body.data;
 
     if (!incomingLetterId) {
       const err: ErrorResponse = {
@@ -344,7 +444,6 @@ const IncomingLetterController = {
     }
 
     if (
-      !req.file &&
       !data.refNo &&
       !data.sender &&
       !data.about &&
@@ -416,7 +515,9 @@ const IncomingLetterController = {
         about: updatedIncomingLetter.about,
         status: updatedIncomingLetter.status.name,
         date: updatedIncomingLetter.date,
-        path: `${process.env.BASE_URL}/incoming_letters/file/${updatedIncomingLetter.id}`,
+        path: !updatedIncomingLetter.path
+          ? null
+          : `${process.env.BASE_URL}/incoming_letters/file/${updatedIncomingLetter.id}`,
         createdAt: updatedIncomingLetter.createdAt,
         updatedAt: updatedIncomingLetter.updatedAt,
       };
@@ -480,11 +581,15 @@ const IncomingLetterController = {
     }
 
     try {
-      await model.delete({
+      const deletedIncomingLetter = await model.delete({
         where: {
           id: incomingLetterId,
         },
       });
+
+      if (deletedIncomingLetter.path) {
+        unlinkSync(deletedIncomingLetter.path);
+      }
 
       const response: SuccessResponse = {
         success: true,
