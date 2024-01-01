@@ -13,10 +13,10 @@ type Cookies = {
   refreshToken: string;
 };
 
-const authToken = (req: Request, res: Response, next: NextFunction) => {
+const authToken = async (req: Request, res: Response, next: NextFunction) => {
   if (!req.headers.cookie) {
     const errMsg: ErrorResponse = {
-      status: 401,
+      status: 403,
       message: 'token required',
     };
 
@@ -25,9 +25,9 @@ const authToken = (req: Request, res: Response, next: NextFunction) => {
 
   const cookies = cookieParser.parse(req.headers.cookie) as Cookies;
 
-  if (!cookies.accessToken || !cookies.refreshToken) {
+  if (!cookies.refreshToken) {
     const errMsg: ErrorResponse = {
-      status: 401,
+      status: 403,
       message: 'token required',
     };
 
@@ -37,38 +37,46 @@ const authToken = (req: Request, res: Response, next: NextFunction) => {
   const accessToken = cookies.accessToken;
   const refreshToken = cookies.refreshToken;
 
-  try {
-    jwt.verify(accessToken as string, process.env.TOKEN_SECRET as string);
-  } catch (error) {
-    if (error) {
-      try {
-        const decoded: any = jwt.verify(
-          refreshToken as string,
-          process.env.TOKEN_SECRET as string
-        );
-        const id = decoded.id;
-        const username = decoded.username;
-        const generatedToken = generateAccessToken({ id, username });
+  if (!accessToken) {
+    try {
+      const decoded: any = jwt.verify(
+        refreshToken,
+        process.env.REFRESH_TOKEN_SECRET as string
+      );
 
-        res.cookie('accessToken', generatedToken.accessToken, {
-          maxAge: 60 * 60 * 1000,
-          secure: false,
-          httpOnly: true,
-        });
+      const id = decoded.id;
+      const username = decoded.username;
+      const generatedToken = generateAccessToken({ id, username });
 
-        return next();
-      } catch (error) {
-        const errMsg: ErrorResponse = {
-          status: 403,
-          message: 'token is invalid or expired',
-        };
+      res.cookie('accessToken', generatedToken.accessToken, {
+        maxAge: 60 * 60 * 1000,
+        secure: false,
+        httpOnly: true,
+      });
 
-        return next(errMsg);
-      }
+      return next();
+    } catch (error) {
+      const errMsg: ErrorResponse = {
+        status: 403,
+        message: 'token is invalid or expired',
+      };
+
+      return next(errMsg);
     }
   }
 
-  next();
+  try {
+    jwt.verify(accessToken as string, process.env.TOKEN_SECRET as string);
+  } catch (error) {
+    const errMsg: ErrorResponse = {
+      status: 403,
+      message: 'token is invalid or expired',
+    };
+
+    return next(errMsg);
+  }
+
+  return next();
 };
 
 export default authToken;

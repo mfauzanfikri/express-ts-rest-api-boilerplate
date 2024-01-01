@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import { ErrorResponse, SuccessResponse } from '../types/responses';
-import DispositionStatusModel from '../models/dispositionStatu';
+import DispositionStatusModel from '../models/dispositionStatus';
 const model = DispositionStatusModel;
 
 const DispositionStatusController = {

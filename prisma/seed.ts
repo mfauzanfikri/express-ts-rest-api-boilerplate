@@ -228,6 +228,14 @@ async function main() {
     where: { id: 9 },
     update: {},
     create: {
+      name: 'Sub Bagian Perencanaan, Evaluasi, & Pelaporan',
+    },
+  });
+
+  const section10 = await prisma.section.upsert({
+    where: { id: 10 },
+    update: {},
+    create: {
       name: 'Sub Bagian Umum dan Kepegawaian',
     },
   });
@@ -355,6 +363,7 @@ async function main() {
     section7,
     section8,
     section9,
+    section10,
     employee,
     user,
     apikey1,

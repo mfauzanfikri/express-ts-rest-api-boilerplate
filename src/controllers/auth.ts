@@ -141,7 +141,7 @@ const AuthController = {
       } catch (error) {
         const errMsg: ErrorResponse = {
           status: 403,
-          message: 'token is invalid or expired 1',
+          message: 'token is invalid or expired',
         };
 
         return next(errMsg);
@@ -153,7 +153,7 @@ const AuthController = {
     } catch (error) {
       const errMsg: ErrorResponse = {
         status: 403,
-        message: 'token is invalid or expired 2',
+        message: 'token is invalid or expired',
       };
 
       return next(errMsg);

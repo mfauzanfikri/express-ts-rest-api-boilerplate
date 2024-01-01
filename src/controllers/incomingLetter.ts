@@ -437,7 +437,7 @@ const IncomingLetterController = {
     if (!incomingLetterId) {
       const err: ErrorResponse = {
         status: 422,
-        message: 'incomingLetterId required',
+        message: 'id required',
       };
 
       return next(err);
@@ -478,7 +478,7 @@ const IncomingLetterController = {
     try {
       isExist = await model.findFirst({
         where: {
-          refNo: data.refNo,
+          id: incomingLetterId,
         },
       });
     } catch (error) {
@@ -542,14 +542,14 @@ const IncomingLetterController = {
 
   delete: async (req: Request, res: Response, next: NextFunction) => {
     const incomingLetterId: number =
-      typeof req.body.incomingLetterId === 'number'
+      typeof req.body.id === 'number'
         ? req.body.id
-        : Number.parseInt(req.body.incomingLetterId);
+        : Number.parseInt(req.body.id);
 
     if (!incomingLetterId) {
       const err: ErrorResponse = {
         status: 422,
-        message: 'incomingLetterId required',
+        message: 'id required',
       };
 
       return next(err);

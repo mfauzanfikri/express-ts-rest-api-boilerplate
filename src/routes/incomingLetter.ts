@@ -27,6 +27,11 @@ router.post(
   Controller.postFile
 );
 router.put('/', authToken, Controller.put);
+router.put(
+  '/file',
+  [authToken, upload.single('incomingLetter')],
+  Controller.putFile
+);
 router.delete('/', authToken, Controller.delete);
 
 const incomingLetterRouter = router;
