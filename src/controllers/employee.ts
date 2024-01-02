@@ -340,7 +340,7 @@ const EmployeeController = {
         status: 500,
         message: 'there is something wrong, try again later',
       };
-      console.log(error);
+
       return next(errRes);
     }
   },
