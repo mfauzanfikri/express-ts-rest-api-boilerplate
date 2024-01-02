@@ -111,7 +111,7 @@ const UserController = {
   },
 
   post: async (req: Request, res: Response, next: NextFunction) => {
-    const data: UserData = JSON.parse(req.body.data);
+    const data: UserData = req.body.data;
 
     if (!data.username || !data.password || !data.userLevelId) {
       const err: ErrorResponse = {

@@ -104,7 +104,7 @@ const DispositionController = {
   },
 
   post: async (req: Request, res: Response, next: NextFunction) => {
-    const data: DispositionData = JSON.parse(req.body.data);
+    const data: DispositionData = req.body.data;
 
     if (!data.incomingLetterId || !data.dispositionStatusId) {
       const err: ErrorResponse = {

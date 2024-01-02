@@ -20,7 +20,7 @@ model User {
   updatedAt   DateTime? @updatedAt @map("updated_at")
 
   userLevel UserLevel @relation(fields: [userLevelId], references: [id])
-  employee  Employee  @relation(fields: [employeeId], references: [id])
+  employee  Employee  @relation(fields: [employeeId], references: [id], onDelete: Cascade)
 
   @@map("user")
 }

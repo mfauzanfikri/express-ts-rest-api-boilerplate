@@ -110,8 +110,7 @@ const EmployeeController = {
   },
 
   post: async (req: Request, res: Response, next: NextFunction) => {
-    const data: EmployeeData = JSON.parse(req.body.data);
-    console.log(data);
+    const data: EmployeeData = req.body.data;
 
     if (
       !data.name ||
@@ -204,24 +203,67 @@ const EmployeeController = {
     if (!employeeId) {
       const err: ErrorResponse = {
         status: 422,
-        message: 'employeeId required',
+        message: 'id required',
       };
 
       return next(err);
     }
 
     if (
-      !data.name ||
-      (!data.nip && !data.nik) ||
-      !data.sectionId ||
+      !data.name &&
+      !data.nip &&
+      !data.nik &&
+      !data.sectionId &&
       !data.position
     ) {
       const err: ErrorResponse = {
         status: 422,
-        message: 'name, nip, section, or position parameters required',
+        message: 'name, nip, sectionId, or position parameters required',
       };
 
       return next(err);
+    }
+
+    if (data.nip) {
+      try {
+        const isExist = await model.findFirst({ where: { nip: data.nip } });
+        if (isExist) {
+          const err: ErrorResponse = {
+            status: 409,
+            message: 'nip already exists',
+          };
+
+          return next(err);
+        }
+      } catch (error) {
+        const errRes: ErrorResponse = {
+          status: 500,
+          message: 'there is something wrong, try again later',
+        };
+
+        return next(errRes);
+      }
+    }
+
+    if (data.nik) {
+      try {
+        const isExist = await model.findFirst({ where: { nik: data.nik } });
+        if (isExist) {
+          const err: ErrorResponse = {
+            status: 409,
+            message: 'nik already exists',
+          };
+
+          return next(err);
+        }
+      } catch (error) {
+        const errRes: ErrorResponse = {
+          status: 500,
+          message: 'there is something wrong, try again later',
+        };
+
+        return next(errRes);
+      }
     }
 
     let updateData = {};
@@ -298,16 +340,16 @@ const EmployeeController = {
         status: 500,
         message: 'there is something wrong, try again later',
       };
-
+      console.log(error);
       return next(errRes);
     }
   },
 
   delete: async (req: Request, res: Response, next: NextFunction) => {
     const employeeId: number =
-      typeof req.body.employeeId === 'number'
+      typeof req.body.id === 'number'
         ? req.body.id
-        : Number.parseInt(req.body.employeeId);
+        : Number.parseInt(req.body.id);
 
     if (!employeeId) {
       const err: ErrorResponse = {

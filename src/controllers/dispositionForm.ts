@@ -108,7 +108,7 @@ const DispositionFormController = {
   },
 
   post: async (req: Request, res: Response, next: NextFunction) => {
-    const data: DispositionFormData = JSON.parse(req.body.data);
+    const data: DispositionFormData = req.body.data;
 
     if (
       !data.from ||

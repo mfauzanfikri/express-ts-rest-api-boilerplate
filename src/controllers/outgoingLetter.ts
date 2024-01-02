@@ -158,7 +158,7 @@ const OutgoingLetterController = {
   },
 
   post: async (req: Request, res: Response, next: NextFunction) => {
-    const data: OutgoingLetterData = JSON.parse(req.body.data);
+    const data: OutgoingLetterData = req.body.data;
 
     if (
       !req.file ||
