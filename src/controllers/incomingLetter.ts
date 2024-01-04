@@ -195,6 +195,17 @@ const IncomingLetterController = {
     let data: IncomingLetterData;
     const file = req.file;
 
+    if (file.mimetype !== 'application/pdf') {
+      const err: ErrorResponse = {
+        status: 415,
+        message: 'only pdf file is acceptable for incomingLetter field',
+      };
+
+      unlinkSync(file.path);
+
+      return next(err);
+    }
+
     try {
       data = JSON.parse(req.body.data);
     } catch (error) {
@@ -229,7 +240,6 @@ const IncomingLetterController = {
     }
 
     let isExist;
-
     try {
       isExist = await model.findFirst({
         where: {

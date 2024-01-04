@@ -19,8 +19,19 @@ const upload = multer({ storage: storage });
 
 router.get('/', authAPIKey, Controller.get);
 router.get('/:id', authAPIKey, Controller.getById);
-router.post('/', authToken, Controller.post);
+router.get('/file/:id', authAPIKey, Controller.getFile);
+router.post('/', [authToken, upload.single('outgoingLetter')], Controller.post);
+router.post(
+  '/file',
+  [authToken, upload.single('outgoingLetter')],
+  Controller.postFile
+);
 router.put('/', authToken, Controller.put);
+router.put(
+  '/file',
+  [authToken, upload.single('outgoingLetter')],
+  Controller.putFile
+);
 router.delete('/', authToken, Controller.delete);
 
 const outgoingLetterRouter = router;
