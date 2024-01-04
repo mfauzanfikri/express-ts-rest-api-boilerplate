@@ -33,7 +33,7 @@ const UserController = {
         username: user.username,
         userLevelId: user.userLevelId,
         userLevel: user.userLevel.level,
-        employee: `${process.env.BASE_URL}/employee/${user.employeeId}`,
+        employee: `${process.env.BASE_URL}/employees/${user.employeeId}`,
         createdAt: user.createdAt,
         updatedAt: user.updatedAt,
       };
@@ -96,7 +96,68 @@ const UserController = {
       username: getUser.username,
       userLevelId: getUser.userLevelId,
       userLevel: getUser.userLevel.level,
-      employee: `${process.env.BASE_URL}/employee/${getUser.employeeId}`,
+      employee: `${process.env.BASE_URL}/employees/${getUser.employeeId}`,
+      createdAt: getUser.createdAt,
+      updatedAt: getUser.updatedAt,
+    };
+
+    const response: SuccessResponse = {
+      success: true,
+      message: 'user data fetched successfully',
+      data: user,
+    };
+
+    res.json(response);
+  },
+
+  getByEmployeeId: async (req: Request, res: Response, next: NextFunction) => {
+    const id = Number.parseInt(req.params.id);
+
+    if (!id) {
+      const err: ErrorResponse = {
+        status: 422,
+        message: 'id parameter required',
+      };
+
+      return next(err);
+    }
+
+    let getUser;
+    try {
+      getUser = await model.findFirst({
+        where: { employeeId: id },
+        include: {
+          userLevel: {
+            select: {
+              level: true,
+            },
+          },
+        },
+      });
+    } catch (error) {
+      const errRes: ErrorResponse = {
+        status: 500,
+        message: 'there is something wrong, try again later',
+      };
+
+      return next(errRes);
+    }
+
+    if (!getUser) {
+      const err: ErrorResponse = {
+        status: 404,
+        message: 'user not found',
+      };
+
+      return next(err);
+    }
+
+    const user: UserResource = {
+      id: getUser.id,
+      username: getUser.username,
+      userLevelId: getUser.userLevelId,
+      userLevel: getUser.userLevel.level,
+      employee: `${process.env.BASE_URL}/employees/${getUser.employeeId}`,
       createdAt: getUser.createdAt,
       updatedAt: getUser.updatedAt,
     };
@@ -170,7 +231,7 @@ const UserController = {
         username: createdUser.username,
         userLevelId: createdUser.userLevelId,
         userLevel: createdUser.userLevel.level,
-        employee: `${process.env.BASE_URL}/employee/${createdUser.employeeId}`,
+        employee: `${process.env.BASE_URL}/employees/${createdUser.employeeId}`,
         createdAt: createdUser.createdAt,
         updatedAt: createdUser.updatedAt,
       };
@@ -209,7 +270,12 @@ const UserController = {
       return next(err);
     }
 
-    if (!data.username || !data.password || !data.userLevelId) {
+    if (
+      !data.username &&
+      !data.password &&
+      !data.userLevelId &&
+      !data.employeeId
+    ) {
       const err: ErrorResponse = {
         status: 422,
         message:
@@ -238,7 +304,7 @@ const UserController = {
     try {
       isExist = await model.findFirst({
         where: {
-          username: data.username,
+          id: userId,
         },
       });
     } catch (error) {
@@ -277,7 +343,7 @@ const UserController = {
         username: updatedEmployee.username,
         userLevelId: updatedEmployee.userLevelId,
         userLevel: updatedEmployee.userLevel.level,
-        employee: `${process.env.BASE_URL}/employee/${updatedEmployee.employeeId}`,
+        employee: `${process.env.BASE_URL}/employees/${updatedEmployee.employeeId}`,
         createdAt: updatedEmployee.createdAt,
         updatedAt: updatedEmployee.updatedAt,
       };
@@ -302,9 +368,9 @@ const UserController = {
 
   delete: async (req: Request, res: Response, next: NextFunction) => {
     const userId: number =
-      typeof req.body.userId === 'number'
+      typeof req.body.id === 'number'
         ? req.body.id
-        : Number.parseInt(req.body.userId);
+        : Number.parseInt(req.body.id);
 
     if (!userId) {
       const err: ErrorResponse = {

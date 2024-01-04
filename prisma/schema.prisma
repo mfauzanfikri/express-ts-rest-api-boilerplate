@@ -15,7 +15,7 @@ model User {
   username    String    @unique
   password    String
   userLevelId Int       @map("user_level_id")
-  employeeId  Int       @map("employee_id")
+  employeeId  Int       @unique @map("employee_id")
   createdAt   DateTime  @default(now()) @map("created_at")
   updatedAt   DateTime? @updatedAt @map("updated_at")
 
