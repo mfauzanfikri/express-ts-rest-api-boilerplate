@@ -1,12 +1,12 @@
 import { NextFunction, Request, Response } from 'express';
-import DispositionFormFormModel, {
+import DispositionFormModel, {
   DispositionFormResult,
   DispositionFormData,
   DispositionFormResource,
 } from '../models/dispositionForm';
 import { ErrorResponse, SuccessResponse } from '../types/responses';
 
-const model = DispositionFormFormModel;
+const model = DispositionFormModel;
 
 const DispositionFormController = {
   get: async (req: Request, res: Response, next: NextFunction) => {
@@ -102,6 +102,70 @@ const DispositionFormController = {
       success: true,
       message: 'dispositionForm data fetched successfully',
       data: disposition,
+    };
+
+    res.json(response);
+  },
+
+  getByIncomingLetterId: async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    const id = Number.parseInt(req.params.id);
+
+    if (!id) {
+      const err: ErrorResponse = {
+        status: 422,
+        message: 'id parameter required',
+      };
+
+      return next(err);
+    }
+
+    let getDispositionForms;
+    try {
+      getDispositionForms = await model.findMany({
+        where: { dispositionId: id },
+        include: { instruction: true },
+      });
+    } catch (error) {
+      const errRes: ErrorResponse = {
+        status: 500,
+        message: 'there is something wrong, try again later',
+      };
+
+      return next(errRes);
+    }
+
+    if (!getDispositionForms) {
+      const err: ErrorResponse = {
+        status: 404,
+        message: 'dispositionForms not found',
+      };
+
+      return next(err);
+    }
+    const dispositionForms: DispositionFormResource[] = [];
+    getDispositionForms.map((d) => {
+      const _dispositionForm: DispositionFormResource = {
+        id: d.id,
+        from: `${process.env.BASE_URL}/users/${d.from}`,
+        to: `${process.env.BASE_URL}/users/${d.to}`,
+        instruction: d.instruction.name,
+        notes: d.notes,
+        disposition: `${process.env.BASE_URL}/dispositions/${d.dispositionId}`,
+        createdAt: d.createdAt,
+        updatedAt: d.updatedAt,
+      };
+
+      dispositionForms.push(_dispositionForm);
+    });
+
+    const response: SuccessResponse = {
+      success: true,
+      message: 'dispositionForm data fetched successfully',
+      data: dispositionForms,
     };
 
     res.json(response);

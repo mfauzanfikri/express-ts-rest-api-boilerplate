@@ -118,7 +118,7 @@ model DispositionForm {
   createdAt     DateTime  @default(now()) @map("created_at")
   updatedAt     DateTime? @updatedAt @map("updated_at")
 
-  disposition Disposition @relation(fields: [dispositionId], references: [id])
+  disposition Disposition @relation(fields: [dispositionId], references: [id], onDelete: Cascade)
   instruction Instruction @relation(fields: [instructionId], references: [id])
 
   @@map("disposition_form")

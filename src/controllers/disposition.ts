@@ -274,9 +274,9 @@ const DispositionController = {
 
   delete: async (req: Request, res: Response, next: NextFunction) => {
     const dispositionId: number =
-      typeof req.body.dispositionId === 'number'
+      typeof req.body.id === 'number'
         ? req.body.id
-        : Number.parseInt(req.body.dispositionId);
+        : Number.parseInt(req.body.id);
 
     if (!dispositionId) {
       const err: ErrorResponse = {

@@ -15,6 +15,8 @@ import positionRouter from './routes/position';
 import sectionRouter from './routes/section';
 import statusRouter from './routes/status';
 import userLevelRouter from './routes/userLevel';
+import dispositionStatusRouter from './routes/dispositionStatus';
+import dispositionFormRouter from './routes/dispositionForm';
 
 dotenv.config();
 
@@ -35,7 +37,9 @@ app.use('/employees', employeeRouter);
 app.use('/incoming_letters', incomingLetterRouter);
 app.use('/outgoing_letters', outgoingLetterRouter);
 app.use('/dispositions', dispositionRouter);
-app.use('/istructions', instructionRouter);
+app.use('/disposition_forms', dispositionFormRouter);
+app.use('/disposition_status', dispositionStatusRouter);
+app.use('/instructions', instructionRouter);
 app.use('/positions', positionRouter);
 app.use('/sections', sectionRouter);
 app.use('/status', statusRouter);
