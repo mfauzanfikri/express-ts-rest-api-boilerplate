@@ -1,8 +1,8 @@
 import express, { Express, Request, Response } from 'express';
 import dotenv from 'dotenv';
-import Route from './routes/Route';
+import Route from './routes/main.route';
 import cors from 'cors';
-import { RequestError } from './types/RequestError';
+import { ErrorResponse } from './types/responses.type';
 import errorHandler from './middlewares/errorHandler';
 
 dotenv.config();
@@ -18,7 +18,7 @@ app.use(cors());
 app.use('/example', Route);
 
 app.get('*', (req, res, next) => {
-  const err: RequestError = {
+  const err: ErrorResponse = {
     status: 404,
     message: '404 NOT FOUND',
   };

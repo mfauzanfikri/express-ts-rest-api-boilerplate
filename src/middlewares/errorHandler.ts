@@ -1,8 +1,8 @@
 import { NextFunction, Request, Response } from 'express';
-import { RequestError } from '../types/RequestError';
+import { ErrorResponse } from '../types/responses.type';
 
 const errorHandler = (
-  err: RequestError,
+  err: ErrorResponse,
   req: Request,
   res: Response,
   next: NextFunction
