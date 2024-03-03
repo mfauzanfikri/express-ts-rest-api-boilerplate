@@ -1,12 +1,15 @@
 {
-  "name": "express-ts-restapi-boilerplate",
+  "name": "simurat-api-project",
   "version": "1.0.0",
   "description": "",
   "main": "./src/app.ts",
   "scripts": {
     "dev": "npx nodemon ./src/app.ts",
-    "migrate": "npx prisma migrate dev --name init",
+    "migrate": "npx prisma migrate dev",
     "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "prisma": {
+    "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
   },
   "keywords": [],
   "author": "",
