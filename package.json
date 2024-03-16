@@ -5,6 +5,7 @@
   "main": "./src/app.ts",
   "scripts": {
     "dev": "npx nodemon ./src/app.ts",
+    "build": "tsc && cp -r ./public ./dist && cp ./prisma/schema.prisma ./dist/prisma && cp .env ./dist",
     "migrate": "npx prisma migrate dev",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
