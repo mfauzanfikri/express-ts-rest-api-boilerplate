@@ -2,8 +2,7 @@ import express, { Express, Request, Response } from 'express';
 import dotenv from 'dotenv';
 import Route from './routes/main.route';
 import cors from 'cors';
-import { ErrorResponse } from './types/responses.type';
-import errorHandler from './middlewares/errorHandler';
+import { ErrorResponse } from './types/response.type';
 
 dotenv.config();
 
@@ -17,15 +16,13 @@ app.use(cors());
 
 app.use('/example', Route);
 
-app.get('*', (req, res, next) => {
-  const err: ErrorResponse = {
+app.get('*', (_, res, next) => {
+  res.status(404).json({
+    success: false,
     status: 404,
-    message: '404 NOT FOUND',
-  };
-  next(err);
+    message: 'Not found',
+  });
 });
-
-app.use(errorHandler);
 
 app.listen(port, () => {
   console.log(`REST API listening on port ${port}`);
