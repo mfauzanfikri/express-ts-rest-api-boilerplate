@@ -16,8 +16,7 @@ model User {
   password String
   roleId   Int    @map("role_id")
 
-  role        Role          @relation(fields: [roleId], references: [id])
-  transaction Transaction[]
+  role Role @relation(fields: [roleId], references: [id])
 
   @@map("user")
 }
